@@ -2,7 +2,7 @@
 <Container version="2">
   <Name>Hevy Progress</Name>
   <Repository>ghcr.io/utgard21/hevy-sync:latest</Repository>
-  <Registry>https://github.com/Utgard21/Hevy-sync/pkgs/container/hevy-sync</Registry>
+  <Registry>https://ghcr.io/utgard21/hevy-sync</Registry>
   <Network>bridge</Network>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
