@@ -9,6 +9,8 @@ services:
       - HEVY_API_KEY=${HEVY_API_KEY:-}
       - TZ=Europe/Sofia
       - SYNC_INTERVAL=3600
+      - DASHBOARD_USERNAME=${DASHBOARD_USERNAME:-}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-}
     volumes:
       - /mnt/user/appdata/hevy-dashboard:/data
     restart: unless-stopped
