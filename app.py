@@ -73,23 +73,20 @@ def parse_csv(text):
   if e is None: e={'title':title,'exercise_template_id':title,'sets':[]}; w['exercises'].append(e)
   e['sets'].append({'type':r.get('set_type','normal'),'weight_kg':float(r['weight_kg']) if r['weight_kg'] else None,'reps':float(r['reps']) if r['reps'] else None})
  return [validate(w) for w in groups.values()]
-MUSCLE_RULES=[
- ('Chest',['bench press','chest press','chest fly','chest flye','pec deck','push up','push-up','cable crossover']),
- ('Back',['row','pulldown','pull down','pull-up','pull up','chin-up','chin up','lat pull','deadlift']),
- ('Shoulders',['shoulder press','overhead press','military press','lateral raise','front raise','rear delt','face pull','upright row']),
- ('Biceps',['bicep','curl','hammer curl','preacher']),
- ('Triceps',['tricep','pushdown','push down','skull crusher','overhead extension','dip']),
- ('Quads',['squat','leg press','leg extension','hack squat','lunge','split squat']),
- ('Hamstrings',['leg curl','hamstring','romanian deadlift','rdl','stiff leg']),
- ('Glutes',['hip thrust','glute','kickback','bridge']),
- ('Calves',['calf','calves']),
- ('Core',['crunch','plank','ab wheel','sit up','sit-up','leg raise','russian twist'])
+MUSCLE_MAP=[
+ ('Chest',['bench press','chest press','chest fly','chest flye','pec deck','push up','push-up','cable crossover'],{'Triceps':.35,'Shoulders':.25}),
+ ('Back',['row','pulldown','pull down','pull-up','pull up','chin-up','chin up','lat pull'],{'Biceps':.35}),
+ ('Shoulders',['shoulder press','overhead press','military press'],{'Triceps':.35}),('Shoulders',['lateral raise','front raise','rear delt','face pull','upright row'],{}),
+ ('Biceps',['bicep','curl','hammer curl','preacher'],{}),('Triceps',['tricep','pushdown','push down','skull crusher','overhead extension','dip'],{}),
+ ('Quads',['squat','leg press','hack squat','lunge','split squat'],{'Glutes':.4,'Hamstrings':.2}),('Quads',['leg extension'],{}),
+ ('Hamstrings',['leg curl','hamstring','romanian deadlift','rdl','stiff leg'],{'Glutes':.35}),('Glutes',['hip thrust','glute','kickback','bridge'],{}),
+ ('Back',['deadlift'],{'Hamstrings':.5,'Glutes':.5}),('Calves',['calf','calves'],{}),('Core',['crunch','plank','ab wheel','sit up','sit-up','leg raise','russian twist'],{})
 ]
-def muscle_for(name):
+def muscle_targets(name):
  n=name.lower()
- for muscle,words in MUSCLE_RULES:
-  if any(word in n for word in words): return muscle
- return 'Other'
+ for primary,words,secondary in MUSCLE_MAP:
+  if any(word in n for word in words): return [(primary,1.0)]+list(secondary.items())
+ return [('Other',1.0)]
 def stats(days=90):
  with db() as c: raw=[json.loads(r[0]) for r in c.execute('SELECT payload FROM workouts')]
  # API wins over CSV when title and timestamps match.
@@ -105,12 +102,17 @@ def stats(days=90):
   b=weekly.setdefault(week,{'workouts':0,'sets':0,'volume':0,'minutes':0}); b['workouts']+=1; daily[day.isoformat()]=daily.get(day.isoformat(),0)+1; dd=daily_detail.setdefault(day.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0,'titles':[]}); dd['workouts']+=1; dd['titles'].append(w['title']); weekdays[day.weekday()]+=1; hours[start.hour]+=1
   seconds=max(0,(stamp(w['end_time'])-start).total_seconds()); duration+=seconds; dd['minutes']+=round(seconds/60); month=day.strftime('%Y-%m'); mb=months.setdefault(month,{'workouts':0,'volume':0,'sets':0,'minutes':0}); mb['workouts']+=1; mb['minutes']+=round(seconds/60); titles[w['title']]=titles.get(w['title'],0)+1; b['minutes']+=round(seconds/60); longest=max(longest,seconds); occurrences+=len(w['exercises']); wvol=0
   for e in w['exercises']:
-   name=e['title']; muscle=muscle_for(name); ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':0,'last_trained':None,'exercises':set()}); ms['sessions']+=1; ms['last_trained']=day.isoformat(); ms['exercises'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); item=exercises.setdefault(name,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[]}); item['sessions']+=1; best=0; best_e1rm=0; ev=0
+   name=e['title']; targets=muscle_targets(name); primary=targets[0][0]; target_rows=[]
+   for muscle,factor in targets:
+    ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':0,'last_trained':None,'exercises':set(),'exercise_names':set()}); ms['sessions']+=factor; ms['last_trained']=day.isoformat(); ms['exercises'].add(name); ms['exercise_names'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); target_rows.append((ms,mw,factor))
+   item=exercises.setdefault(name,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[]}); item['sessions']+=1; best=0; best_e1rm=0; ev=0
    for s in e['sets']:
     if s.get('type')=='warmup': continue
     weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0; v=weight*reps
     total_sets+=1; total_reps+=reps; volume+=v; wvol+=v; dd['sets']+=1; dd['volume']+=v; b['sets']+=1; b['volume']+=v; mb['sets']+=1; mb['volume']+=v
-    item['sets']+=1; item['reps']+=reps; item['volume']+=v; ms['sets']+=1; ms['reps']+=reps; ms['volume']+=v; mw['sets']+=1; mw['volume']+=v; best=max(best,weight); ev+=v
+    item['sets']+=1; item['reps']+=reps; item['volume']+=v
+    for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
+    best=max(best,weight); ev+=v
     if weight>0 and 1<=reps<=12: best_e1rm=max(best_e1rm,weight*(1+reps/30))
     if weight>0 and reps>0:
      bucket=str(int(reps)); old=item['rep_prs'].get(bucket,0)
@@ -155,9 +157,9 @@ def stats(days=90):
  if load['ratio']: insights.append({'icon':'🌊','title':'Recent load','text':f"Your last 7 days are {load['ratio']}× the weekly average of the last 28 days."})
  muscles=[]
  for ms in muscle_stats.values():
-  last=datetime.fromisoformat(ms['last_trained']).date() if ms['last_trained'] else None; muscles.append({'muscle':ms['muscle'],'sets':ms['sets'],'reps':round(ms['reps']),'volume':round(ms['volume']),'sessions':ms['sessions'],'last_trained':ms['last_trained'],'days_since':(today-last).days if last else None,'exercises':len(ms['exercises'])})
+  last=datetime.fromisoformat(ms['last_trained']).date() if ms['last_trained'] else None; muscles.append({'muscle':ms['muscle'],'sets':round(ms['sets'],1),'reps':round(ms['reps']),'volume':round(ms['volume']),'sessions':round(ms['sessions'],1),'last_trained':ms['last_trained'],'days_since':(today-last).days if last else None,'exercises':len(ms['exercises']),'exercise_names':sorted(ms['exercise_names'])})
  muscles.sort(key=lambda x:x['sets'],reverse=True)
- muscle_weekly=[{'date':wk,'muscles':vals} for wk,vals in sorted(muscle_weeks.items())]
+ muscle_weekly=[{'date':wk,'muscles':{m:{'sets':round(v['sets'],1),'volume':round(v['volume'])} for m,v in vals.items()}} for wk,vals in sorted(muscle_weeks.items())]
  achievements=[]
  for goal,label in [(1,'First workout'),(10,'10 workouts'),(25,'25 workouts'),(50,'50 workouts'),(100,'100 workouts'),(250,'250 workouts')]: achievements.append({'label':label,'unlocked':len(workouts)>=goal,'progress':min(100,round(len(workouts)/goal*100))})
  for goal,label in [(10000,'10K kg lifted'),(50000,'50K kg lifted'),(100000,'100K kg lifted'),(500000,'500K kg lifted')]: achievements.append({'label':label,'unlocked':volume>=goal,'progress':min(100,round(volume/goal*100))})
