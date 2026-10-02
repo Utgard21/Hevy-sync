@@ -1,0 +1,62 @@
+# Hevy Progress for Unraid
+
+A single-container dashboard for visualizing Hevy workout progress on Unraid.
+
+## Docker image
+
+GitHub Actions builds and publishes:
+
+`ghcr.io/utgard21/hevy-sync:latest`
+
+The workflow runs tests first, then builds `linux/amd64` and `linux/arm64` images.
+
+## Main features
+
+- Workouts this week/month and all-time
+- Exercise, set, rep, duration and volume statistics
+- Weekly activity and training-volume charts
+- Activity calendar
+- Exercise progression and estimated 1RM
+- Recent workouts
+- Hourly Hevy API sync
+- CSV import
+- Persistent SQLite storage
+- JSON backup
+- Unraid template
+
+## Unraid
+
+Use image:
+
+`ghcr.io/utgard21/hevy-sync:latest`
+
+Map `/data` to a persistent appdata directory and expose container port `8080`.
+
+Set `HEVY_API_KEY` to your Hevy API key, or leave it blank and import Hevy CSV exports.
+
+Default timezone is `Europe/Sofia`.
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| HEVY_API_KEY | empty | Optional Hevy API key |
+| DATA_DIR | /data | Persistent database directory |
+| TZ | Europe/Sofia | Workout dates and week boundaries |
+| SYNC_INTERVAL | 3600 | Seconds between API syncs |
+
+## Local test
+
+```bash
+python -m unittest discover -s tests -v
+node --check static/app.js
+```
+
+## Local Docker build
+
+```bash
+docker build -t hevy-dashboard:local .
+docker run -d --name hevy-dashboard -p 8085:8080 -v /mnt/user/appdata/hevy-dashboard:/data -e TZ=Europe/Sofia hevy-dashboard:local
+```
+
+This is an independent project and is not affiliated with Hevy.
