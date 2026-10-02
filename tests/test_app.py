@@ -25,8 +25,6 @@ class Tests(unittest.TestCase):
   with self.assertRaises(ValueError):app.parse_csv('bad,columns\n1,2')
  def test_timezone(self):
   self.assertEqual(app.stamp('2026-10-01T22:30:00Z').date().isoformat(),'2026-10-02')
-if __name__=='__main__':unittest.main()
-
 class MuscleMappingTests(unittest.TestCase):
     def test_leg_curl_maps_to_hamstrings_not_biceps(self):
         self.assertEqual(app.muscle_targets('Seated Leg Curl')[0][0], 'Hamstrings')
@@ -46,3 +44,6 @@ class ReleaseIntegrityTests(unittest.TestCase):
         self.assertGreaterEqual(len(rows), 8)
         self.assertTrue(all(w['exercises'] for w in rows))
         self.assertNotIn('api-key', raw.lower())
+
+if __name__=='__main__':
+    unittest.main()
