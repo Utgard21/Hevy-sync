@@ -1,0 +1,14 @@
+services:
+  hevy-dashboard:
+    build: .
+    image: hevy-dashboard:local
+    container_name: hevy-dashboard
+    ports:
+      - "8085:8080"
+    environment:
+      - HEVY_API_KEY=${HEVY_API_KEY:-}
+      - TZ=Europe/Sofia
+      - SYNC_INTERVAL=3600
+    volumes:
+      - /mnt/user/appdata/hevy-dashboard:/data
+    restart: unless-stopped
