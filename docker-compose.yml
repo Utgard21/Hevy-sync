@@ -7,8 +7,8 @@ services:
       - "8085:8080"
     environment:
       - HEVY_API_KEY=${HEVY_API_KEY:-}
-      - TZ=Europe/Sofia
-      - SYNC_INTERVAL=3600
+      - TZ=${TZ:-Europe/Sofia}
+      - SYNC_INTERVAL=${SYNC_INTERVAL:-3600}
       - DASHBOARD_USERNAME=${DASHBOARD_USERNAME:-}
       - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-}
     volumes:
