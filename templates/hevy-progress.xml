@@ -7,6 +7,7 @@
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <Icon>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/icons/hevy-progress-icon-small.png</Icon>
   <Overview>Colorful, self-hosted analytics dashboard for Hevy workout data. Track consistency, strength progression, training volume, muscle balance, recovery, personal records and your full workout calendar. Sync through the Hevy API or import CSV exports. Unofficial project; not affiliated with or endorsed by Hevy.</Overview>
   <Project>https://github.com/Utgard21/Hevy-sync</Project>
   <Support>https://github.com/Utgard21/Hevy-sync/issues</Support>
