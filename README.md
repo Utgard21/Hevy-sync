@@ -1,72 +1,131 @@
-# Hevy Progress for Unraid
+# Hevy Progress
 
-A single-container dashboard for visualizing Hevy workout progress on Unraid.
+A colorful, self-hosted training analytics dashboard for [Hevy](https://hevy.com/), designed for Docker and Unraid.
 
-## Docker image
+> **Unofficial project.** Hevy Progress is independent and is not affiliated with, endorsed by, or maintained by Hevy.
 
-GitHub Actions builds and publishes:
+## What it does
 
-`ghcr.io/utgard21/hevy-sync:latest`
+Hevy Progress turns your workout history into a private dashboard with:
 
-The workflow runs tests first, then builds `linux/amd64` and `linux/arm64` images.
+- Overview, Progress, Analytics, Muscles, and Calendar views
+- Workout frequency, volume, sets, reps, duration, streaks, and lifetime totals
+- Exercise progression, rep PRs, estimated 1RM, PR timeline, and mini trend cards
+- Muscle-group heatmap, weighted primary/secondary muscle analytics, recovery view, and weekly muscle sets
+- Full-history training calendar
+- Automatic Hevy API sync or CSV import
+- Persistent SQLite storage and JSON backup
+- Optional HTTP Basic Authentication
+- Multi-architecture Docker images for `linux/amd64` and `linux/arm64`
 
-## Main features
+## Screenshot
 
-- Workouts this week/month and all-time
-- Exercise, set, rep, duration and volume statistics
-- Weekly activity and training-volume charts
-- Activity calendar
-- Exercise progression and estimated 1RM
-- Recent workouts
-- Hourly Hevy API sync
-- CSV import
-- Persistent SQLite storage
-- JSON backup
-- Unraid template
+Screenshots are intentionally not bundled with personal workout data. If you publish screenshots, use demo/redacted data so your training history is not accidentally exposed.
 
-## Unraid
+## Quick start — Unraid
 
-Use image:
+Use the container image:
 
-`ghcr.io/utgard21/hevy-sync:latest`
+```
+ghcr.io/utgard21/hevy-sync:latest
+```
 
-Map `/data` to a persistent appdata directory and expose container port `8080`.
+Map `/data` to a persistent appdata directory, expose container port `8080`, and add the environment variables you need below.
 
-Set `HEVY_API_KEY` to your Hevy API key, or leave it blank and import Hevy CSV exports.
+The Hevy Public API is currently available to Hevy Pro users, and API keys are obtained from Hevy's developer settings. See the [official Hevy API documentation](https://api.hevyapp.com/docs/).
 
-Default timezone is `Europe/Sofia`.
+## Docker Compose
+
+```bash
+cp .env.example .env
+# Edit .env and add your private values.
+docker compose up -d --build
+```
+
+The included Compose file publishes the dashboard at port `8085`.
 
 ## Configuration
 
 | Variable | Default | Purpose |
 |---|---|---|
-| HEVY_API_KEY | empty | Optional Hevy API key |
-| DATA_DIR | /data | Persistent database directory |
-| TZ | Europe/Sofia | Workout dates and week boundaries |
-| SYNC_INTERVAL | 3600 | Seconds between API syncs |
-| DASHBOARD_USERNAME | empty | Optional HTTP Basic Auth username |
-| DASHBOARD_PASSWORD | empty | Optional HTTP Basic Auth password |
+| `HEVY_API_KEY` | empty | Optional Hevy API key |
+| `DATA_DIR` | `/data` | Persistent database directory |
+| `TZ` | `Europe/Sofia` | Workout dates and week boundaries |
+| `SYNC_INTERVAL` | `3600` | Seconds between API syncs |
+| `DASHBOARD_USERNAME` | empty | Optional HTTP Basic Auth username |
+| `DASHBOARD_PASSWORD` | empty | Optional HTTP Basic Auth password |
 
-Set both `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD` to protect the dashboard and API. If both are blank, authentication is disabled. Use HTTPS through your reverse proxy if the dashboard is reachable outside your trusted LAN, because Basic Auth credentials are only protected in transit by HTTPS.
+Set **both** dashboard username and password to enable authentication.
 
-## Local test
+## Security & privacy
+
+The repository is safe to keep public **only if secrets and personal workout data stay outside Git**.
+
+- Never commit `.env`, your Hevy API key, dashboard password, SQLite database, CSV exports, or JSON backups.
+- The supplied `.gitignore` excludes common secret/config files and personal Hevy data.
+- Store persistent workout data only in the mapped `/data` directory.
+- If the dashboard is accessible outside your trusted LAN, put it behind HTTPS. Basic Auth does not encrypt credentials by itself.
+- Prefer a reverse proxy or private VPN for remote access rather than exposing port 8080 directly to the Internet.
+- If a secret was ever committed, removing it from the latest file is **not enough**: rotate the secret and remove it from Git history.
+
+## Data handling
+
+Hevy Progress stores synced/imported workout data locally in SQLite under `/data`. The dashboard does not need your Hevy account password; API access uses `HEVY_API_KEY`.
+
+Warm-up sets are excluded from working-set, rep, and volume totals. Muscle classification is inferred from exercise names and can include fractional secondary-muscle set contributions.
+
+## Authentication
+
+Set:
+
+```env
+DASHBOARD_USERNAME=your_username
+DASHBOARD_PASSWORD=use-a-long-unique-password
+```
+
+If both are blank, authentication is disabled. If only one is configured, access is denied rather than silently running partially configured authentication.
+
+## Build & test
 
 ```bash
 python -m unittest discover -s tests -v
 node --check static/app.js
+docker build -t hevy-dashboard:local .
 ```
 
-## Local Docker build
+Local run:
 
 ```bash
-docker build -t hevy-dashboard:local .
-docker run -d --name hevy-dashboard -p 8085:8080 -v /mnt/user/appdata/hevy-dashboard:/data -e TZ=Europe/Sofia hevy-dashboard:local
+docker run -d \
+  --name hevy-dashboard \
+  -p 8085:8080 \
+  -v /mnt/user/appdata/hevy-dashboard:/data \
+  -e TZ=Europe/Sofia \
+  hevy-dashboard:local
 ```
 
-This is an independent project and is not affiliated with Hevy.
+## Backup
 
-## Dashboard tools
+Use the dashboard's **Download data backup** action or back up the persistent `/data` directory. Treat backups as private because they contain workout history.
 
-Weekly goals and the default preset range now save in SQLite on the server and are shared across devices using this dashboard. They are shared settings, not separate user profiles. Old browser-only targets are not automatically migrated. Custom date ranges are inclusive and compare against the immediately preceding period of equal length. Custom ranges are not saved as the default.
+## Public-repository checklist
 
-Charts expose exact values on hover, keyboard focus, or tap. Data checks report exact duplicate records (already excluded from statistics), empty workouts, future timestamps, and durations outside 0–240 minutes. These are review flags, not automatic fixes. Same-weight progression compares best working-set reps at an identical logged weight, first versus latest session within the chosen range.
+Before publishing a fork or sending a pull request:
+
+- Run `git status` and confirm no data/export files are staged.
+- Search the diff for API keys, passwords, email addresses, hostnames, and private URLs.
+- Use `.env.example` for variable names only; keep real values in `.env`.
+- Use redacted/demo data for screenshots and bug reports.
+- Rotate any credential that was accidentally pushed.
+
+## Hevy attribution
+
+Workout data is obtained from [Hevy](https://hevy.com/) through its public API or user-exported CSV files. Hevy and its branding belong to their respective owner. This project is an independent analytics dashboard.
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
+
+## Contributing
+
+Issues and pull requests are welcome. Please do not attach personal workout exports, API keys, passwords, or unredacted database files to public issues.
