@@ -5,6 +5,7 @@ from urllib.request import Request,urlopen
 from urllib.error import HTTPError,URLError
 from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 from pathlib import Path
+VERSION='1.0.0'
 DATA=Path(os.getenv('DATA_DIR','./data')); DATA.mkdir(parents=True,exist_ok=True)
 TZ=ZoneInfo(os.getenv('TZ','Europe/Sofia'))
 KEY=os.getenv('HEVY_API_KEY','')
@@ -77,6 +78,7 @@ MUSCLE_MAP=[
  ('Chest',['bench press','chest press','chest fly','chest flye','pec deck','push up','push-up','cable crossover'],{'Triceps':.35,'Shoulders':.25}),
  ('Back',['row','pulldown','pull down','pull-up','pull up','chin-up','chin up','lat pull'],{'Biceps':.35}),
  ('Shoulders',['shoulder press','overhead press','military press'],{'Triceps':.35}),('Shoulders',['lateral raise','front raise','rear delt','face pull','upright row'],{}),
+ ('Hamstrings',['leg curl'],{}),
  ('Biceps',['bicep','curl','hammer curl','preacher'],{}),
  ('Triceps',['close-grip dumbbell press','close grip dumbbell press'],{'Chest':.5,'Shoulders':.2}),
  ('Triceps',['skullcrusher','skull crusher'],{}),
@@ -84,7 +86,7 @@ MUSCLE_MAP=[
  ('Back',['shrug'],{}),
  ('Triceps',['tricep','pushdown','push down','overhead extension','dip'],{}),
  ('Quads',['squat','leg press','hack squat','lunge','split squat'],{'Glutes':.4,'Hamstrings':.2}),('Quads',['leg extension'],{}),
- ('Hamstrings',['leg curl','hamstring','romanian deadlift','rdl','stiff leg'],{'Glutes':.35}),('Glutes',['hip thrust','glute','kickback','bridge'],{}),
+ ('Hamstrings',['hamstring','romanian deadlift','rdl','stiff leg'],{'Glutes':.35}),('Glutes',['hip thrust','glute','kickback','bridge'],{}),
  ('Back',['deadlift'],{'Hamstrings':.5,'Glutes':.5}),('Calves',['calf','calves'],{}),('Core',['crunch','plank','ab wheel','sit up','sit-up','leg raise','russian twist'],{})
 ]
 def muscle_targets(name):
@@ -194,8 +196,8 @@ def stats(days=90,start_date=None,end_date=None):
  progression=sorted(progression,key=lambda x:(len(next(e['history'] for e in exercises.values() if e['name']==x['name'])),abs(x['change'])),reverse=True)[:6]
  achievements=[]
  for goal,label in [(1,'First workout'),(10,'10 workouts'),(25,'25 workouts'),(50,'50 workouts'),(100,'100 workouts'),(250,'250 workouts')]: achievements.append({'label':label,'unlocked':len(workouts)>=goal,'progress':min(100,round(len(workouts)/goal*100))})
- for goal,label in [(10000,'10K kg lifted'),(50000,'50K kg lifted'),(100000,'100K kg lifted'),(500000,'500K kg lifted')]: achievements.append({'label':label,'unlocked':volume>=goal,'progress':min(100,round(volume/goal*100))})
- return {'date_range':{'start':cutoff.isoformat(),'end':report_end.isoformat()},'quality':quality_checks(raw),'same_weight':same_weight_progress(selected),'status':STATUS.copy(),'week_totals':period_totals([w for w in workouts if monday<=stamp(w['start_time']).date()<=today]),'days':days,'summary':{'workouts':len(selected),'all_time':len(workouts),'this_week':sum(monday<=stamp(w['start_time']).date()<=today for w in workouts),'this_month':sum(stamp(w['start_time']).date().replace(day=1)==today.replace(day=1) for w in workouts),'exercises':len(exercises),'exercise_entries':occurrences,'sets':total_sets,'reps':total_reps,'volume':round(volume),'hours':round(duration/3600,1),'average_minutes':round(duration/60/len(selected)) if selected else 0,'avg_week':avg_week,'avg_sets':avg_sets,'avg_volume':avg_volume,'longest_minutes':round(longest/60),'active_days':len(set(active_days)),'current_streak':current_streak,'best_streak':best_streak,'favorite_day':top_day,'favorite_hour':top_hour},'weekly':[{'date':k,**v} for k,v in sorted(weekly.items())],'daily':daily,'daily_detail':daily_detail,'calendar_detail':calendar_detail,'lifetime':lifetime,'progression':progression,'insights':insights,'muscles':muscles,'muscle_weekly':muscle_weekly,'exercises':sorted(exercises.values(),key=lambda e:e['sessions'],reverse=True),'recent':recent[::-1][:30],'records':records,'weekdays':weekdays,'hours':hours,'monthly':monthly,'top_exercises':top_exercises,'workout_types':workout_types,'achievements':achievements,'comparison':comparison,'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}
+ for goal,label in [(10000,'10K kg lifted'),(50000,'50K kg lifted'),(100000,'100K kg lifted'),(500000,'500K kg lifted')]: achievements.append({'label':label,'unlocked':lifetime['volume']>=goal,'progress':min(100,round(lifetime['volume']/goal*100))})
+ return {'date_range':{'start':cutoff.isoformat(),'end':report_end.isoformat()},'quality':quality_checks(raw),'same_weight':same_weight_progress(selected),'version':VERSION,'status':STATUS.copy(),'week_totals':period_totals([w for w in workouts if monday<=stamp(w['start_time']).date()<=today]),'days':days,'summary':{'workouts':len(selected),'all_time':len(workouts),'this_week':sum(monday<=stamp(w['start_time']).date()<=today for w in workouts),'this_month':sum(stamp(w['start_time']).date().replace(day=1)==today.replace(day=1) for w in workouts),'exercises':len(exercises),'exercise_entries':occurrences,'sets':total_sets,'reps':total_reps,'volume':round(volume),'hours':round(duration/3600,1),'average_minutes':round(duration/60/len(selected)) if selected else 0,'avg_week':avg_week,'avg_sets':avg_sets,'avg_volume':avg_volume,'longest_minutes':round(longest/60),'active_days':len(set(active_days)),'current_streak':current_streak,'best_streak':best_streak,'favorite_day':top_day,'favorite_hour':top_hour},'weekly':[{'date':k,**v} for k,v in sorted(weekly.items())],'daily':daily,'daily_detail':daily_detail,'calendar_detail':calendar_detail,'lifetime':lifetime,'progression':progression,'insights':insights,'muscles':muscles,'muscle_weekly':muscle_weekly,'exercises':sorted(exercises.values(),key=lambda e:e['sessions'],reverse=True),'recent':recent[::-1][:30],'records':records,'weekdays':weekdays,'hours':hours,'monthly':monthly,'top_exercises':top_exercises,'workout_types':workout_types,'achievements':achievements,'comparison':comparison,'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}
 def settings(update=None):
  defaults={'workouts':4,'sets':60,'range':90}
  with db() as c:
