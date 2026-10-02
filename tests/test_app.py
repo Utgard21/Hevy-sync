@@ -26,3 +26,10 @@ class Tests(unittest.TestCase):
  def test_timezone(self):
   self.assertEqual(app.stamp('2026-10-01T22:30:00Z').date().isoformat(),'2026-10-02')
 if __name__=='__main__':unittest.main()
+
+class MuscleMappingTests(unittest.TestCase):
+    def test_leg_curl_maps_to_hamstrings_not_biceps(self):
+        self.assertEqual(app.muscle_targets('Seated Leg Curl')[0][0], 'Hamstrings')
+
+    def test_arm_curl_still_maps_to_biceps(self):
+        self.assertEqual(app.muscle_targets('Dumbbell Bicep Curl')[0][0], 'Biceps')
