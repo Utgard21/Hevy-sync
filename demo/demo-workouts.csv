@@ -1,26 +1,26 @@
 title,start_time,end_time,exercise_title,set_type,weight_kg,reps
-Upper Body,"01 Sep 2026, 18:00",01 Sep 2026, 19:05,Bench Press,normal,70,8
-Upper Body,"01 Sep 2026, 18:00",01 Sep 2026, 19:05,Bench Press,normal,70,8
-Upper Body,"01 Sep 2026, 18:00",01 Sep 2026, 19:05,Lat Pulldown,normal,60,10
-Upper Body,"01 Sep 2026, 18:00",01 Sep 2026, 19:05,Dumbbell Lateral Raise,normal,10,12
-Lower Body,"04 Sep 2026, 18:10",04 Sep 2026, 19:10,Squat,normal,90,8
-Lower Body,"04 Sep 2026, 18:10",04 Sep 2026, 19:10,Leg Curl,normal,45,12
-Lower Body,"04 Sep 2026, 18:10",04 Sep 2026, 19:10,Calf Raise,normal,80,15
-Upper Body,"08 Sep 2026, 18:00",08 Sep 2026, 19:08,Bench Press,normal,72.5,8
-Upper Body,"08 Sep 2026, 18:00",08 Sep 2026, 19:08,Lat Pulldown,normal,62.5,10
-Upper Body,"08 Sep 2026, 18:00",08 Sep 2026, 19:08,Dumbbell Lateral Raise,normal,11,12
-Lower Body,"11 Sep 2026, 18:15",11 Sep 2026, 19:12,Squat,normal,92.5,8
-Lower Body,"11 Sep 2026, 18:15",11 Sep 2026, 19:12,Leg Curl,normal,47.5,12
-Lower Body,"11 Sep 2026, 18:15",11 Sep 2026, 19:12,Calf Raise,normal,82.5,15
-Upper Body,"15 Sep 2026, 18:05",15 Sep 2026, 19:12,Bench Press,normal,75,8
-Upper Body,"15 Sep 2026, 18:05",15 Sep 2026, 19:12,Lat Pulldown,normal,65,10
-Upper Body,"15 Sep 2026, 18:05",15 Sep 2026, 19:12,Dumbbell Lateral Raise,normal,12,12
-Lower Body,"18 Sep 2026, 18:00",18 Sep 2026, 19:05,Squat,normal,95,8
-Lower Body,"18 Sep 2026, 18:00",18 Sep 2026, 19:05,Leg Curl,normal,50,12
-Lower Body,"18 Sep 2026, 18:00",18 Sep 2026, 19:05,Calf Raise,normal,85,15
-Upper Body,"22 Sep 2026, 18:00",22 Sep 2026, 19:10,Bench Press,normal,77.5,8
-Upper Body,"22 Sep 2026, 18:00",22 Sep 2026, 19:10,Lat Pulldown,normal,67.5,10
-Upper Body,"22 Sep 2026, 18:00",22 Sep 2026, 19:10,Dumbbell Lateral Raise,normal,12,15
-Lower Body,"25 Sep 2026, 18:10",25 Sep 2026, 19:15,Squat,normal,97.5,8
-Lower Body,"25 Sep 2026, 18:10",25 Sep 2026, 19:15,Leg Curl,normal,52.5,12
-Lower Body,"25 Sep 2026, 18:10",25 Sep 2026, 19:15,Calf Raise,normal,87.5,15
+Upper Body,"01 Sep 2026, 18:00","01 Sep 2026, 19:05",Bench Press,normal,70,8
+Upper Body,"01 Sep 2026, 18:00","01 Sep 2026, 19:05",Bench Press,normal,70,8
+Upper Body,"01 Sep 2026, 18:00","01 Sep 2026, 19:05",Lat Pulldown,normal,60,10
+Upper Body,"01 Sep 2026, 18:00","01 Sep 2026, 19:05",Dumbbell Lateral Raise,normal,10,12
+Lower Body,"04 Sep 2026, 18:10","04 Sep 2026, 19:10",Squat,normal,90,8
+Lower Body,"04 Sep 2026, 18:10","04 Sep 2026, 19:10",Leg Curl,normal,45,12
+Lower Body,"04 Sep 2026, 18:10","04 Sep 2026, 19:10",Calf Raise,normal,80,15
+Upper Body,"08 Sep 2026, 18:00","08 Sep 2026, 19:08",Bench Press,normal,72.5,8
+Upper Body,"08 Sep 2026, 18:00","08 Sep 2026, 19:08",Lat Pulldown,normal,62.5,10
+Upper Body,"08 Sep 2026, 18:00","08 Sep 2026, 19:08",Dumbbell Lateral Raise,normal,11,12
+Lower Body,"11 Sep 2026, 18:15","11 Sep 2026, 19:12",Squat,normal,92.5,8
+Lower Body,"11 Sep 2026, 18:15","11 Sep 2026, 19:12",Leg Curl,normal,47.5,12
+Lower Body,"11 Sep 2026, 18:15","11 Sep 2026, 19:12",Calf Raise,normal,82.5,15
+Upper Body,"15 Sep 2026, 18:05","15 Sep 2026, 19:12",Bench Press,normal,75,8
+Upper Body,"15 Sep 2026, 18:05","15 Sep 2026, 19:12",Lat Pulldown,normal,65,10
+Upper Body,"15 Sep 2026, 18:05","15 Sep 2026, 19:12",Dumbbell Lateral Raise,normal,12,12
+Lower Body,"18 Sep 2026, 18:00","18 Sep 2026, 19:05",Squat,normal,95,8
+Lower Body,"18 Sep 2026, 18:00","18 Sep 2026, 19:05",Leg Curl,normal,50,12
+Lower Body,"18 Sep 2026, 18:00","18 Sep 2026, 19:05",Calf Raise,normal,85,15
+Upper Body,"22 Sep 2026, 18:00","22 Sep 2026, 19:10",Bench Press,normal,77.5,8
+Upper Body,"22 Sep 2026, 18:00","22 Sep 2026, 19:10",Lat Pulldown,normal,67.5,10
+Upper Body,"22 Sep 2026, 18:00","22 Sep 2026, 19:10",Dumbbell Lateral Raise,normal,12,15
+Lower Body,"25 Sep 2026, 18:10","25 Sep 2026, 19:15",Squat,normal,97.5,8
+Lower Body,"25 Sep 2026, 18:10","25 Sep 2026, 19:15",Leg Curl,normal,52.5,12
+Lower Body,"25 Sep 2026, 18:10","25 Sep 2026, 19:15",Calf Raise,normal,87.5,15
