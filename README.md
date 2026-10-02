@@ -24,6 +24,10 @@ Screenshots are intentionally not bundled with personal workout data. If you pub
 
 ## Quick start — Unraid
 
+A Community Applications template is included at `templates/hevy-progress.xml`. While the app is awaiting Community Applications review, you can install it manually by using the raw template or copying it to `/boot/config/plugins/dockerMan/templates-user/`.
+
+Once accepted, search for **Hevy Progress** in Unraid's Apps tab.
+
 Use the container image:
 
 ```
