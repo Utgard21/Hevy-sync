@@ -13,7 +13,7 @@
   <Support>https://github.com/Utgard21/Hevy-sync/issues</Support>
   <TemplateURL>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/templates/hevy-progress.xml</TemplateURL>
   <ReadMe>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/README.md</ReadMe>
-  <Category>Tools:Other</Category>
+  <Category>Tools:System</Category>
   <ExtraSearchTerms>hevy fitness workout gym training analytics progress exercise</ExtraSearchTerms>
   <Requires>Optional Hevy API key for automatic sync. CSV import can be used without an API key.</Requires>
   <Changes>Initial Community Applications release.</Changes>
