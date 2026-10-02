@@ -1,6 +1,6 @@
 # Hevy Progress
 
-**Unraid Community Applications repository approved** · Docker / Unraid · Self-hosted · MIT
+**v1.0.0** · Unraid Community Applications repository approved · Docker / Unraid · Self-hosted · MIT
 
 
 A colorful, self-hosted training analytics dashboard for [Hevy](https://hevy.com/), designed for Docker and Unraid.
@@ -21,9 +21,13 @@ Hevy Progress turns your workout history into a private dashboard with:
 - Optional HTTP Basic Authentication
 - Multi-architecture Docker images for `linux/amd64` and `linux/arm64`
 
-## Screenshot
+## Demo & screenshots
 
-Screenshots are intentionally not bundled with personal workout data. If you publish screenshots, use demo/redacted data so your training history is not accidentally exposed.
+A privacy-safe sample file is included at `demo/demo-workouts.csv`. Import it into a fresh/test instance to populate the dashboard for screenshots or to explore the UI without connecting a Hevy account.
+
+**Do not use demo data in your real instance unless you want those sample workouts stored alongside your own data.**
+
+Screenshots for the public listing should be captured from this demo dataset rather than a personal workout database.
 
 ## Unraid Community Applications
 
@@ -132,6 +136,10 @@ Before publishing a fork or sending a pull request:
 ## Hevy attribution
 
 Workout data is obtained from [Hevy](https://hevy.com/) through its public API or user-exported CSV files. Hevy and its branding belong to their respective owner. This project is an independent analytics dashboard.
+
+## Release
+
+The first stable public release is **v1.0.0**. The container continues to publish `latest`, while version tags provide reproducible release images.
 
 ## License
 
