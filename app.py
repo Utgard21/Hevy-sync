@@ -251,7 +251,7 @@ class Handler(BaseHTTPRequestHandler):
  def auth_required(self):
   body=b'Authentication required'; self.send_response(401); self.send_header('WWW-Authenticate','Basic realm="Hevy Progress", charset="UTF-8"'); self.send_header('Content-Type','text/plain; charset=utf-8'); self.send_header('Content-Length',str(len(body))); self.send_header('Cache-Control','no-store'); self.end_headers(); self.wfile.write(body)
  def reply(self,code,body,kind='application/json'):
-  data=body if isinstance(body,bytes) else json.dumps(body).encode(); self.send_response(code); self.send_header('Content-Type',kind); self.send_header('Content-Length',str(len(data))); self.send_header('Cache-Control','no-store'); self.send_header('X-Content-Type-Options','nosniff'); self.end_headers(); self.wfile.write(data)
+  data=body if isinstance(body,bytes) else json.dumps(body).encode(); self.send_response(code); self.send_header('Content-Type',kind); self.send_header('Content-Length',str(len(data))); self.send_header('Cache-Control','no-store'); self.send_header('X-Content-Type-Options','nosniff'); self.send_header('X-Frame-Options','DENY'); self.send_header('Referrer-Policy','no-referrer'); self.send_header('Permissions-Policy','camera=(), microphone=(), geolocation=()'); self.end_headers(); self.wfile.write(data)
  def do_GET(self):
   from urllib.parse import urlparse,parse_qs
   u=urlparse(self.path)
