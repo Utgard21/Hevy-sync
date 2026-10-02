@@ -1,5 +1,8 @@
 # Hevy Progress
 
+**Unraid Community Applications repository approved** · Docker / Unraid · Self-hosted · MIT
+
+
 A colorful, self-hosted training analytics dashboard for [Hevy](https://hevy.com/), designed for Docker and Unraid.
 
 > **Unofficial project.** Hevy Progress is independent and is not affiliated with, endorsed by, or maintained by Hevy.
@@ -22,11 +25,15 @@ Hevy Progress turns your workout history into a private dashboard with:
 
 Screenshots are intentionally not bundled with personal workout data. If you publish screenshots, use demo/redacted data so your training history is not accidentally exposed.
 
-## Quick start — Unraid
+## Unraid Community Applications
 
-A Community Applications template is included at `templates/hevy-progress.xml`. While the app is awaiting Community Applications review, you can install it manually by using the raw template or copying it to `/boot/config/plugins/dockerMan/templates-user/`.
+The **Utgard21 Community Applications repository has been approved by Unraid**. Hevy Progress is packaged with a native Unraid template and is awaiting/undergoing indexing into the Community Applications catalog.
 
-Once accepted, search for **Hevy Progress** in Unraid's Apps tab.
+Once the app appears in the Apps catalog, search for **Hevy Progress** and install it directly from Unraid.
+
+Until then, the included template is available at `templates/hevy-progress.xml` for manual installation.
+
+### Container image
 
 Use the container image:
 
