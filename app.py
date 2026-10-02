@@ -92,16 +92,20 @@ def muscle_targets(name):
  for primary,words,secondary in MUSCLE_MAP:
   if any(word in n for word in words): return [(primary,1.0)]+list(secondary.items())
  return [('Other',1.0)]
-def stats(days=90):
+def stats(days=90,start_date=None,end_date=None):
  with db() as c: raw=[json.loads(r[0]) for r in c.execute('SELECT payload FROM workouts')]
  # API wins over CSV when title and timestamps match.
  raw.sort(key=lambda w: str(w['id']).startswith('csv-')); seen=set(); workouts=[]
  for w in raw:
   k=(w['title'],stamp(w['start_time']).isoformat(),stamp(w['end_time']).isoformat())
   if k not in seen: seen.add(k); workouts.append(w)
- now=datetime.now(TZ); today=now.date(); monday=today-timedelta(days=today.weekday()); cutoff=(today.replace(year=today.year-1)+timedelta(days=1)) if days==365 else today-timedelta(days=days-1)
+ now=datetime.now(TZ); today=now.date(); monday=today-timedelta(days=today.weekday()); cutoff=today-timedelta(days=days-1); report_end=today
+ if start_date or end_date:
+  if not start_date or not end_date: raise ValueError('Both dates are required')
+  cutoff=datetime.strptime(start_date,'%Y-%m-%d').date(); report_end=datetime.strptime(end_date,'%Y-%m-%d').date()
+  if cutoff>report_end or (report_end-cutoff).days>36500: raise ValueError('Invalid date range')
  weekly={}; daily={}; daily_detail={}; exercises={}; muscle_stats={}; muscle_weeks={}; recent=[]; weekdays=[0]*7; hours=[0]*24; months={}; titles={}; prs=[]; total_sets=total_reps=volume=duration=occurrences=0; longest=0
- selected=[w for w in workouts if cutoff<=stamp(w['start_time']).date()<=today]
+ selected=[w for w in workouts if cutoff<=stamp(w['start_time']).date()<=report_end]
  for w in sorted(selected,key=lambda w:w['start_time']):
   start=stamp(w['start_time']); day=start.date(); week=(day-timedelta(days=day.weekday())).isoformat()
   b=weekly.setdefault(week,{'workouts':0,'sets':0,'volume':0,'minutes':0}); b['workouts']+=1; daily[day.isoformat()]=daily.get(day.isoformat(),0)+1; dd=daily_detail.setdefault(day.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0,'titles':[]}); dd['workouts']+=1; dd['titles'].append(w['title']); weekdays[day.weekday()]+=1; hours[start.hour]+=1
@@ -127,7 +131,7 @@ def stats(days=90):
    if best_e1rm>old_e1rm and old_e1rm>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'e1RM PR','value':round(best_e1rm,1),'unit':'kg'})
   recent.append({'id':w['id'],'title':w['title'],'date':start.isoformat(),'exercises':len(w['exercises']),'volume':wvol,'minutes':round(max(0,(stamp(w['end_time'])-start).total_seconds())/60)})
  first=cutoff-timedelta(days=cutoff.weekday()); cursor=first
- while cursor<=today:
+ while cursor<=report_end:
   weekly.setdefault(cursor.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0}); cursor+=timedelta(days=7)
  active_days=sorted(stamp(w['start_time']).date() for w in selected); streak=best_streak=0; prev=None
  for d in sorted(set(active_days)):
@@ -135,7 +139,7 @@ def stats(days=90):
  current_streak=0; d=today
  active_set=set(active_days)
  while d in active_set: current_streak+=1; d-=timedelta(days=1)
- range_days=max(1,(today-cutoff).days+1); avg_week=round(len(selected)/max(1,range_days/7),1); avg_sets=round(total_sets/len(selected),1) if selected else 0; avg_volume=round(volume/len(selected)) if selected else 0
+ range_days=max(1,(report_end-cutoff).days+1); avg_week=round(len(selected)/max(1,range_days/7),1); avg_sets=round(total_sets/len(selected),1) if selected else 0; avg_volume=round(volume/len(selected)) if selected else 0
  top_day=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekdays.index(max(weekdays))] if selected else '-'; top_hour=hours.index(max(hours)) if selected else 0
  records=sorted([{'name':e['name'],'best_weight':round(e['best_weight'],1),'e1rm':round(e['e1rm'],1),'volume':round(e['volume'])} for e in exercises.values() if e['best_weight']>0],key=lambda x:x['e1rm'],reverse=True)[:10]
  monthly=[{'month':k,**v} for k,v in sorted(months.items())]; top_exercises=sorted([{'name':e['name'],'sessions':e['sessions'],'sets':e['sets'],'volume':round(e['volume'])} for e in exercises.values()],key=lambda x:x['sessions'],reverse=True)[:10]
@@ -191,7 +195,48 @@ def stats(days=90):
  achievements=[]
  for goal,label in [(1,'First workout'),(10,'10 workouts'),(25,'25 workouts'),(50,'50 workouts'),(100,'100 workouts'),(250,'250 workouts')]: achievements.append({'label':label,'unlocked':len(workouts)>=goal,'progress':min(100,round(len(workouts)/goal*100))})
  for goal,label in [(10000,'10K kg lifted'),(50000,'50K kg lifted'),(100000,'100K kg lifted'),(500000,'500K kg lifted')]: achievements.append({'label':label,'unlocked':volume>=goal,'progress':min(100,round(volume/goal*100))})
- return {'status':STATUS.copy(),'week_totals':period_totals([w for w in workouts if monday<=stamp(w['start_time']).date()<=today]),'days':days,'summary':{'workouts':len(selected),'all_time':len(workouts),'this_week':sum(monday<=stamp(w['start_time']).date()<=today for w in workouts),'this_month':sum(stamp(w['start_time']).date().replace(day=1)==today.replace(day=1) for w in workouts),'exercises':len(exercises),'exercise_entries':occurrences,'sets':total_sets,'reps':total_reps,'volume':round(volume),'hours':round(duration/3600,1),'average_minutes':round(duration/60/len(selected)) if selected else 0,'avg_week':avg_week,'avg_sets':avg_sets,'avg_volume':avg_volume,'longest_minutes':round(longest/60),'active_days':len(set(active_days)),'current_streak':current_streak,'best_streak':best_streak,'favorite_day':top_day,'favorite_hour':top_hour},'weekly':[{'date':k,**v} for k,v in sorted(weekly.items())],'daily':daily,'daily_detail':daily_detail,'calendar_detail':calendar_detail,'lifetime':lifetime,'progression':progression,'insights':insights,'muscles':muscles,'muscle_weekly':muscle_weekly,'exercises':sorted(exercises.values(),key=lambda e:e['sessions'],reverse=True),'recent':recent[::-1][:30],'records':records,'weekdays':weekdays,'hours':hours,'monthly':monthly,'top_exercises':top_exercises,'workout_types':workout_types,'achievements':achievements,'comparison':comparison,'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}
+ return {'date_range':{'start':cutoff.isoformat(),'end':report_end.isoformat()},'quality':quality_checks(raw),'same_weight':same_weight_progress(selected),'status':STATUS.copy(),'week_totals':period_totals([w for w in workouts if monday<=stamp(w['start_time']).date()<=today]),'days':days,'summary':{'workouts':len(selected),'all_time':len(workouts),'this_week':sum(monday<=stamp(w['start_time']).date()<=today for w in workouts),'this_month':sum(stamp(w['start_time']).date().replace(day=1)==today.replace(day=1) for w in workouts),'exercises':len(exercises),'exercise_entries':occurrences,'sets':total_sets,'reps':total_reps,'volume':round(volume),'hours':round(duration/3600,1),'average_minutes':round(duration/60/len(selected)) if selected else 0,'avg_week':avg_week,'avg_sets':avg_sets,'avg_volume':avg_volume,'longest_minutes':round(longest/60),'active_days':len(set(active_days)),'current_streak':current_streak,'best_streak':best_streak,'favorite_day':top_day,'favorite_hour':top_hour},'weekly':[{'date':k,**v} for k,v in sorted(weekly.items())],'daily':daily,'daily_detail':daily_detail,'calendar_detail':calendar_detail,'lifetime':lifetime,'progression':progression,'insights':insights,'muscles':muscles,'muscle_weekly':muscle_weekly,'exercises':sorted(exercises.values(),key=lambda e:e['sessions'],reverse=True),'recent':recent[::-1][:30],'records':records,'weekdays':weekdays,'hours':hours,'monthly':monthly,'top_exercises':top_exercises,'workout_types':workout_types,'achievements':achievements,'comparison':comparison,'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}
+def settings(update=None):
+ defaults={'workouts':4,'sets':60,'range':90}
+ with db() as c:
+  c.execute('CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY,payload TEXT NOT NULL)')
+  row=c.execute('SELECT payload FROM settings WHERE id=1').fetchone(); value={**defaults,**(json.loads(row[0]) if row else {})}
+  if update is not None:
+   if not isinstance(update,dict) or set(update)-set(defaults): raise ValueError('Unknown settings')
+   for key,v in update.items():
+    if type(v) is not int or (key=='workouts' and not 1<=v<=30) or (key=='sets' and not 1<=v<=1000) or (key=='range' and v not in (30,90,180,365,3650)): raise ValueError('Invalid setting')
+   value.update(update); c.execute('INSERT OR REPLACE INTO settings VALUES (1,?)',(json.dumps(value),))
+ return value
+
+def quality_checks(rows):
+ issues=[]; seen=set(); duplicates=0
+ for w in rows:
+  key=(w['title'],stamp(w['start_time']).isoformat(),stamp(w['end_time']).isoformat())
+  if key in seen: duplicates+=1
+  seen.add(key); minutes=(stamp(w['end_time'])-stamp(w['start_time'])).total_seconds()/60
+  reasons=[]
+  if minutes<=0 or minutes>240: reasons.append('Duration is zero, negative, or over 4 hours')
+  if not w.get('exercises') or not any(e.get('sets') for e in w.get('exercises',[])): reasons.append('No logged sets')
+  if stamp(w['start_time'])>datetime.now(TZ): reasons.append('Workout date is in the future')
+  if reasons: issues.append({'id':w['id'],'title':w['title'],'date':stamp(w['start_time']).date().isoformat(),'reasons':reasons})
+ return {'duplicates':duplicates,'flagged':len(issues),'issues':issues[:50],'checked':len(rows)}
+
+def same_weight_progress(rows):
+ grouped={}
+ for w in sorted(rows,key=lambda w:stamp(w['start_time'])):
+  for e in w['exercises']:
+   by_weight={}
+   for ss in e['sets']:
+    weight=ss.get('weight_kg') or 0; reps=ss.get('reps') or 0
+    if ss.get('type')!='warmup' and weight>0 and reps>0: by_weight[weight]=max(by_weight.get(weight,0),reps)
+   for weight,reps in by_weight.items():grouped.setdefault((e['title'],weight),{})[w['id']]={'date':stamp(w['start_time']).date().isoformat(),'reps':reps}
+ result=[]
+ for (name,weight),sessions in grouped.items():
+  hist=list(sessions.values())
+  if len(hist)>=2:
+   first,last=hist[0],hist[-1];result.append({'name':name,'weight':weight,'first_reps':first['reps'],'latest_reps':last['reps'],'change':last['reps']-first['reps'],'first_date':first['date'],'latest_date':last['date'],'sessions':len(hist)})
+ return sorted(result,key=lambda x:(x['latest_date'],x['change']),reverse=True)[:30]
+
 class Handler(BaseHTTPRequestHandler):
  def authenticated(self):
   if not AUTH_USER and not AUTH_PASS: return True
@@ -211,8 +256,9 @@ class Handler(BaseHTTPRequestHandler):
   if u.path!='/health' and not self.authenticated(): return self.auth_required()
   if u.path=='/health': return self.reply(200,{'ok':True})
   if u.path=='/api/stats':
-   try: days=int(parse_qs(u.query).get('days',['90'])[0]); assert days in (30,90,180,365,3650); return self.reply(200,stats(days))
+   try: days=int(parse_qs(u.query).get('days',['90'])[0]); assert days in (30,90,180,365,3650); q=parse_qs(u.query); return self.reply(200,stats(days,q.get('start',[None])[0],q.get('end',[None])[0]))
    except (ValueError,AssertionError): return self.reply(400,{'error':'Invalid date range'})
+  if u.path=='/api/settings': return self.reply(200,settings())
   if u.path=='/api/workout':
    wid=parse_qs(u.query).get('id',[''])[0]
    with db() as c: row=c.execute('SELECT payload FROM workouts WHERE id=?',(wid,)).fetchone()
@@ -227,6 +273,12 @@ class Handler(BaseHTTPRequestHandler):
   if not self.authenticated(): return self.auth_required()
   # Require a custom header so third-party pages cannot submit imports/syncs.
   if self.headers.get('X-Hevy-Dashboard')!='1': return self.reply(403,{'error':'Missing request header'})
+  if self.path=='/api/settings':
+   try:
+    length=int(self.headers.get('Content-Length','0'))
+    if not 0<length<=4096: return self.reply(400,{'error':'Invalid settings size'})
+    return self.reply(200,settings(json.loads(self.rfile.read(length))))
+   except (ValueError,UnicodeError): return self.reply(400,{'error':'Invalid settings'})
   if self.path=='/api/sync':
    if not KEY: return self.reply(400,{'error':'Set HEVY_API_KEY in your container settings, or import CSV.'})
    threading.Thread(target=sync,daemon=True).start(); return self.reply(202,{'ok':True})

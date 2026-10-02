@@ -64,3 +64,9 @@ docker run -d --name hevy-dashboard -p 8085:8080 -v /mnt/user/appdata/hevy-dashb
 ```
 
 This is an independent project and is not affiliated with Hevy.
+
+## Dashboard tools
+
+Weekly goals and the default preset range now save in SQLite on the server and are shared across devices using this dashboard. They are shared settings, not separate user profiles. Old browser-only targets are not automatically migrated. Custom date ranges are inclusive and compare against the immediately preceding period of equal length. Custom ranges are not saved as the default.
+
+Charts expose exact values on hover, keyboard focus, or tap. Data checks report exact duplicate records (already excluded from statistics), empty workouts, future timestamps, and durations outside 0–240 minutes. These are review flags, not automatic fixes. Same-weight progression compares best working-set reps at an identical logged weight, first versus latest session within the chosen range.
