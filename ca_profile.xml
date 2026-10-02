@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<Maintainer>
-  <Profile>Utgard21</Profile>
-  <Support>https://github.com/Utgard21/Hevy-sync/issues</Support>
-</Maintainer>
+<CommunityApplications>
+  <Profile>Hevy Progress is an independent, self-hosted workout analytics dashboard for Hevy users. It provides training frequency, strength progression, volume, personal records, muscle balance, recovery and calendar analytics. Support and source code are available on GitHub.</Profile>
+  <Icon>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/icons/hevy-progress-icon-small.png</Icon>
+  <WebPage>https://github.com/Utgard21/Hevy-sync</WebPage>
+</CommunityApplications>
