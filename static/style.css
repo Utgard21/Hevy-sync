@@ -96,3 +96,10 @@ dialog{width:min(850px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 #customDates{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:14px 0}#customDates[hidden],#chartTooltip[hidden]{display:none}#customDates label{display:grid;gap:5px;font-size:12px;color:#c2d0e4}#customDates input{padding:10px;border-radius:8px;border:1px solid #475c78;background:#1b283a;color:#edf2fa;font:inherit}#chartTooltip{position:fixed;z-index:1000;max-width:min(320px,calc(100vw - 16px));padding:12px 15px;border:1px solid #7094bf;border-radius:10px;background:#111f32;color:#edf4ff;box-shadow:0 8px 25px #0007;font-size:13px;pointer-events:none}.barcol:focus-visible{outline:2px solid #bcaaff;outline-offset:3px;border-radius:4px}#sameWeight h3{color:#bcaaff;margin:10px 0}#sameWeight strong{color:#e9bc7b}
+
+/* v1.0 stabilization */
+.musclerow.musclefocus{padding:0;margin-left:0;margin-right:0;outline:1px solid #88baff55;outline-offset:4px}
+.muscleweek .weekseg{background:var(--muscle-color)!important}
+.textbutton{display:inline;padding:0;border:0;background:none;color:#99c5ff;font:inherit;cursor:pointer;box-shadow:none}.textbutton:hover{text-decoration:underline;filter:none}
+.aboutgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.aboutgrid .mini{padding:14px}.aboutgrid strong{display:block;margin-top:6px}
+@media(max-width:650px){.aboutgrid{grid-template-columns:repeat(2,1fr)}}
