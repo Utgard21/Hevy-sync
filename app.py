@@ -12,8 +12,12 @@ KEY=os.getenv('HEVY_API_KEY','')
 AUTH_USER=os.getenv('DASHBOARD_USERNAME','').strip(); AUTH_PASS=os.getenv('DASHBOARD_PASSWORD','')
 INTERVAL=max(300,int(os.getenv('SYNC_INTERVAL','3600')))
 LOCK=threading.Lock(); STATUS={'syncing':False,'last_sync':None,'error':None,'api_configured':bool(KEY)}
+class ClosingConnection(sqlite3.Connection):
+ def __exit__(self,exc_type,exc,tb):
+  try: return super().__exit__(exc_type,exc,tb)
+  finally: self.close()
 def db():
- c=sqlite3.connect(DATA/'hevy.sqlite'); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); return c
+ c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); return c
 def stamp(s):
  d=datetime.fromisoformat(s.replace('Z','+00:00')); return d.replace(tzinfo=TZ) if d.tzinfo is None else d.astimezone(TZ)
 def validate(w):
