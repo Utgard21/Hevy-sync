@@ -35,7 +35,7 @@ The **Utgard21 Community Applications repository has been approved by Unraid**. 
 
 Once the app appears in the Apps catalog, search for **Hevy Progress** and install it directly from Unraid.
 
-Until then, the included template is available at `templates/hevy-progress.xml` for manual installation.
+Until then, the included template is available at `hevy-progress.xml` for manual installation.
 
 ### Container image
 
