@@ -44,6 +44,10 @@ Default timezone is `Europe/Sofia`.
 | DATA_DIR | /data | Persistent database directory |
 | TZ | Europe/Sofia | Workout dates and week boundaries |
 | SYNC_INTERVAL | 3600 | Seconds between API syncs |
+| DASHBOARD_USERNAME | empty | Optional HTTP Basic Auth username |
+| DASHBOARD_PASSWORD | empty | Optional HTTP Basic Auth password |
+
+Set both `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD` to protect the dashboard and API. If both are blank, authentication is disabled. Use HTTPS through your reverse proxy if the dashboard is reachable outside your trusted LAN, because Basic Auth credentials are only protected in transit by HTTPS.
 
 ## Local test
 
