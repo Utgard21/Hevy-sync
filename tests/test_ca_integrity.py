@@ -10,7 +10,7 @@ class CommunityApplicationsIntegrityTests(unittest.TestCase):
         self.assertTrue(profile)
 
     def test_docker_template_schema(self):
-        path=Path('templates/hevy-progress.xml')
+        path=Path('hevy-progress.xml')
         root=ET.parse(path).getroot()
         self.assertEqual(root.tag,'Container')
         self.assertEqual(root.attrib.get('version'),'2')
@@ -22,7 +22,7 @@ class CommunityApplicationsIntegrityTests(unittest.TestCase):
         self.assertEqual(root.findtext('Category'),'Tools:System')
         self.assertEqual(
             root.findtext('TemplateURL'),
-            'https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/templates/hevy-progress.xml'
+            'https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/hevy-progress.xml'
         )
         configs=root.findall('Config')
         self.assertTrue(any(c.attrib.get('Type')=='Port' and c.attrib.get('Target')=='8080' for c in configs))
@@ -30,7 +30,7 @@ class CommunityApplicationsIntegrityTests(unittest.TestCase):
 
     def test_only_expected_ca_xml_files(self):
         xmls=sorted(str(p).replace('\\\\','/') for p in Path('.').rglob('*.xml'))
-        self.assertEqual(xmls,['ca_profile.xml','templates/hevy-progress.xml'])
+        self.assertEqual(xmls,['ca_profile.xml','hevy-progress.xml'])
 
 if __name__=='__main__':
     unittest.main()
