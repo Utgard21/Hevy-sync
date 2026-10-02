@@ -77,7 +77,12 @@ MUSCLE_MAP=[
  ('Chest',['bench press','chest press','chest fly','chest flye','pec deck','push up','push-up','cable crossover'],{'Triceps':.35,'Shoulders':.25}),
  ('Back',['row','pulldown','pull down','pull-up','pull up','chin-up','chin up','lat pull'],{'Biceps':.35}),
  ('Shoulders',['shoulder press','overhead press','military press'],{'Triceps':.35}),('Shoulders',['lateral raise','front raise','rear delt','face pull','upright row'],{}),
- ('Biceps',['bicep','curl','hammer curl','preacher'],{}),('Triceps',['tricep','pushdown','push down','skull crusher','overhead extension','dip'],{}),
+ ('Biceps',['bicep','curl','hammer curl','preacher'],{}),
+ ('Triceps',['close-grip dumbbell press','close grip dumbbell press'],{'Chest':.5,'Shoulders':.2}),
+ ('Triceps',['skullcrusher','skull crusher'],{}),
+ ('Back',['pullover'],{'Chest':.3}),
+ ('Back',['shrug'],{}),
+ ('Triceps',['tricep','pushdown','push down','overhead extension','dip'],{}),
  ('Quads',['squat','leg press','hack squat','lunge','split squat'],{'Glutes':.4,'Hamstrings':.2}),('Quads',['leg extension'],{}),
  ('Hamstrings',['leg curl','hamstring','romanian deadlift','rdl','stiff leg'],{'Glutes':.35}),('Glutes',['hip thrust','glute','kickback','bridge'],{}),
  ('Back',['deadlift'],{'Hamstrings':.5,'Glutes':.5}),('Calves',['calf','calves'],{}),('Core',['crunch','plank','ab wheel','sit up','sit-up','leg raise','russian twist'],{})
