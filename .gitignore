@@ -1,4 +1,24 @@
+# Secrets and local configuration
 .env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Personal Hevy data / exports
 data/
+*.sqlite
+*.sqlite3
+*.db
+*.csv
+*.json.bak
+*backup*.json
+*export*.json
+
+# Python / editor / OS
 __pycache__/
-*.sqlite*
+*.py[cod]
+.pytest_cache/
+.vscode/
+.idea/
+.DS_Store
