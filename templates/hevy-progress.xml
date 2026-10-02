@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Hevy Progress</Name>
+  <Repository>ghcr.io/utgard21/hevy-sync:latest</Repository>
+  <Registry>https://github.com/Utgard21/Hevy-sync/pkgs/container/hevy-sync</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <Overview>Colorful, self-hosted analytics dashboard for Hevy workout data. Track consistency, strength progression, training volume, muscle balance, recovery, personal records and your full workout calendar. Sync through the Hevy API or import CSV exports. Unofficial project; not affiliated with or endorsed by Hevy.</Overview>
+  <Project>https://github.com/Utgard21/Hevy-sync</Project>
+  <Support>https://github.com/Utgard21/Hevy-sync/issues</Support>
+  <TemplateURL>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/templates/hevy-progress.xml</TemplateURL>
+  <ReadMe>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/README.md</ReadMe>
+  <Category>Tools:Other</Category>
+  <ExtraSearchTerms>hevy fitness workout gym training analytics progress exercise</ExtraSearchTerms>
+  <Requires>Optional Hevy API key for automatic sync. CSV import can be used without an API key.</Requires>
+  <Changes>Initial Community Applications release.</Changes>
+  <Date>2026-10-02</Date>
+  <MinVer>6.12.0</MinVer>
+  <License>MIT</License>
+  <Config Name="WebUI" Target="8080" Default="8080" Mode="tcp" Description="HTTP port for the Hevy Progress dashboard." Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Appdata" Target="/data" Default="/mnt/user/appdata/hevy-progress" Mode="rw" Description="Persistent SQLite database and application data." Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Hevy API Key" Target="HEVY_API_KEY" Default="" Description="Optional Hevy API key for automatic workout synchronization. Leave blank to use CSV import only." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Dashboard Username" Target="DASHBOARD_USERNAME" Default="" Description="Optional dashboard username. Set both username and password to enable HTTP Basic Authentication." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Dashboard Password" Target="DASHBOARD_PASSWORD" Default="" Description="Optional dashboard password. Use HTTPS if accessing the dashboard outside your trusted LAN." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="Timezone" Target="TZ" Default="Europe/Sofia" Description="Timezone used for workout dates, calendar days and week boundaries." Type="Variable" Display="advanced" Required="true" Mask="false"/>
+  <Config Name="Sync Interval" Target="SYNC_INTERVAL" Default="3600" Description="Seconds between automatic Hevy API syncs. Minimum effective value is 300 seconds." Type="Variable" Display="advanced" Required="true" Mask="false"/>
+</Container>
