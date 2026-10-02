@@ -33,3 +33,16 @@ class MuscleMappingTests(unittest.TestCase):
 
     def test_arm_curl_still_maps_to_biceps(self):
         self.assertEqual(app.muscle_targets('Dumbbell Bicep Curl')[0][0], 'Biceps')
+
+class ReleaseIntegrityTests(unittest.TestCase):
+    def test_version_file_matches_app(self):
+        from pathlib import Path
+        self.assertEqual(Path('VERSION').read_text().strip(), app.VERSION)
+
+    def test_demo_csv_is_valid_and_anonymous(self):
+        from pathlib import Path
+        raw=Path('demo/demo-workouts.csv').read_text()
+        rows=app.parse_csv(raw)
+        self.assertGreaterEqual(len(rows), 8)
+        self.assertTrue(all(w['exercises'] for w in rows))
+        self.assertNotIn('api-key', raw.lower())
