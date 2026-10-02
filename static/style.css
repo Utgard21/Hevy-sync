@@ -54,3 +54,6 @@ h1{background:linear-gradient(90deg,var(--sky),var(--mint),var(--butter),var(--l
 .muscle-shape{fill:var(--sky)}.muscle-shape:nth-of-type(3n){fill:var(--aqua)}.muscle-shape:nth-of-type(4n){fill:var(--periwinkle)}
 .heatlegend i:nth-of-type(2){background:#678f91}.heatlegend i:nth-of-type(3){background:var(--sky)}.heatlegend i:nth-of-type(4){background:var(--lavender)}
 .achievement.unlocked>span{background:linear-gradient(135deg,var(--butter),var(--mint));color:#18211d}.calbadge{background:#9ed8bd22;color:#b6ead2}.calday.selected{outline-color:var(--periwinkle);box-shadow:0 0 20px #a9b8e644}
+
+/* Visible official Hevy attribution */
+.brandline{display:flex;align-items:center;gap:13px}.brandline h1{margin:9px 0}.hevyofficial{display:flex;align-items:center;justify-content:center;width:48px;height:48px;flex:0 0 48px;border-radius:13px;overflow:hidden;background:#fff;border:1px solid #ffffff33;box-shadow:0 8px 24px #0006}.hevyofficial img{display:block;width:100%;height:100%;object-fit:cover}.hevyack{font-size:11px!important;color:#71809a!important;margin:4px 0 0!important}.hevyack a,.footercredit a{color:var(--mint);text-decoration:none}.hevyack a:hover,.footercredit a:hover{text-decoration:underline}.footercredit{margin-top:7px;color:#66758f}@media(max-width:600px){.hevyofficial{width:40px;height:40px;flex-basis:40px}.brandline{gap:9px}}
