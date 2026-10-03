@@ -73,3 +73,13 @@ class DashboardTools(unittest.TestCase):
   with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'routine'))
   r=next(x for x in app.stats(3650)['workout_types'] if x['name']=='Push Day')
   self.assertEqual(r['volume'],500); self.assertEqual(r['weighted_sets'],1)
+
+ def test_hevy_template_muscles_override_name_fallback(self):
+  w=self.workout('meta','2026-10-01'); w['exercises'][0]['title']='Unknown Move'; w['exercises'][0]['exercise_template_id']='tpl-1'
+  with app.db() as db:
+   db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'meta'))
+   db.execute('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',('tpl-1',json.dumps({'id':'tpl-1','primary_muscle_group':'chest','secondary_muscle_groups':['shoulders']})))
+  s=app.stats(3650); e=s['exercises'][0]
+  self.assertEqual(e['muscle_source'],'hevy')
+  self.assertTrue(any(m['muscle']=='Chest' for m in s['muscles']))
+  self.assertFalse(any(m['muscle']=='Other' for m in s['muscles']))
