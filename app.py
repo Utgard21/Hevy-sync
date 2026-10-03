@@ -198,7 +198,15 @@ def stats(days=90,start_date=None,end_date=None):
   e['pace_seconds_per_km']=round(e['total_duration_seconds']/(e['total_distance_meters']/1000),1) if e['total_duration_seconds']>0 and e['total_distance_meters']>0 else None
  records=sorted([{'name':e['name'],'best_weight':round(e['best_weight'],1),'e1rm':round(e['e1rm'],1),'volume':round(e['volume'])} for e in exercises.values() if e['best_weight']>0],key=lambda x:x['e1rm'],reverse=True)[:10]
  monthly=[{'month':k,**v} for k,v in sorted(months.items())]; top_exercises=sorted([{'name':e['name'],'sessions':e['sessions'],'sets':e['sets'],'volume':round(e['volume'])} for e in exercises.values()],key=lambda x:x['sessions'],reverse=True)[:10]
- workout_types=sorted([{'name':k,'count':v} for k,v in titles.items()],key=lambda x:x['count'],reverse=True)[:8]
+ routine_totals={}
+ for ww in selected:
+  rt=routine_totals.setdefault(ww['title'],{'name':ww['title'],'count':0,'volume':0,'weighted_sets':0}); rt['count']+=1
+  for ee in ww['exercises']:
+   for ss in ee['sets']:
+    if ss.get('type')=='warmup': continue
+    wt=ss.get('weight_kg') or 0; rp=ss.get('reps') or 0
+    if wt>0 and rp>0: rt['volume']+=wt*rp; rt['weighted_sets']+=1
+ workout_types=sorted(routine_totals.values(),key=lambda x:x['count'],reverse=True)[:8]
  prev_start=cutoff-timedelta(days=range_days); previous=[w for w in workouts if prev_start<=stamp(w['start_time']).date()<cutoff]
  def period_totals(rows):
   v=sets=reps=0
