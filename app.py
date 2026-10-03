@@ -148,13 +148,13 @@ def stats(days=90,start_date=None,end_date=None):
   wk=wd-timedelta(days=wd.weekday())
   week_counts[wk]=week_counts.get(wk,0)+1
  current_week=monday; current_count=week_counts.get(current_week,0)
- days_left=6-today.weekday()
- current_week_alive=current_count>=workout_goal or current_count+days_left>=workout_goal
+ # Count consecutive successful completed weeks. If this week has already reached
+ # the target it joins the streak; otherwise it remains an in-progress week and
+ # does not erase the streak earned in previous completed weeks.
  cursor=current_week if current_count>=workout_goal else current_week-timedelta(days=7)
  current_streak=0
- if current_week_alive:
-  while week_counts.get(cursor,0)>=workout_goal:
-   current_streak+=1; cursor-=timedelta(days=7)
+ while week_counts.get(cursor,0)>=workout_goal:
+  current_streak+=1; cursor-=timedelta(days=7)
  best_streak=streak=0
  for wk in sorted(k for k,v in week_counts.items() if v>=workout_goal):
   streak=streak+1 if 'prev_goal_week' in locals() and wk==prev_goal_week+timedelta(days=7) else 1
