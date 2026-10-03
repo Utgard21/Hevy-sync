@@ -139,12 +139,26 @@ def stats(days=90,start_date=None,end_date=None):
  first=cutoff-timedelta(days=cutoff.weekday()); cursor=first
  while cursor<=report_end:
   weekly.setdefault(cursor.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0}); cursor+=timedelta(days=7)
- active_days=sorted(stamp(w['start_time']).date() for w in selected); streak=best_streak=0; prev=None
- for d in sorted(set(active_days)):
-  streak=streak+1 if prev and d==prev+timedelta(days=1) else 1; best_streak=max(best_streak,streak); prev=d
- current_streak=0; d=today
- active_set=set(active_days)
- while d in active_set: current_streak+=1; d-=timedelta(days=1)
+ active_days=sorted(stamp(w['start_time']).date() for w in selected)
+ # A training streak is consecutive weeks that meet the configured workout goal.
+ # The current week stays alive while there is still enough time to reach the goal.
+ workout_goal=settings()['workouts']; week_counts={}
+ for w in workouts:
+  wd=stamp(w['start_time']).date()
+  wk=wd-timedelta(days=wd.weekday())
+  week_counts[wk]=week_counts.get(wk,0)+1
+ current_week=monday; current_count=week_counts.get(current_week,0)
+ days_left=6-today.weekday()
+ current_week_alive=current_count>=workout_goal or current_count+days_left>=workout_goal
+ cursor=current_week if current_count>=workout_goal else current_week-timedelta(days=7)
+ current_streak=0
+ if current_week_alive:
+  while week_counts.get(cursor,0)>=workout_goal:
+   current_streak+=1; cursor-=timedelta(days=7)
+ best_streak=streak=0
+ for wk in sorted(k for k,v in week_counts.items() if v>=workout_goal):
+  streak=streak+1 if 'prev_goal_week' in locals() and wk==prev_goal_week+timedelta(days=7) else 1
+  best_streak=max(best_streak,streak); prev_goal_week=wk
  range_days=max(1,(report_end-cutoff).days+1); avg_week=round(len(selected)/max(1,range_days/7),1); avg_sets=round(total_sets/len(selected),1) if selected else 0; avg_volume=round(volume/len(selected)) if selected else 0
  top_day=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekdays.index(max(weekdays))] if selected else '-'; top_hour=hours.index(max(hours)) if selected else 0
  records=sorted([{'name':e['name'],'best_weight':round(e['best_weight'],1),'e1rm':round(e['e1rm'],1),'volume':round(e['volume'])} for e in exercises.values() if e['best_weight']>0],key=lambda x:x['e1rm'],reverse=True)[:10]
