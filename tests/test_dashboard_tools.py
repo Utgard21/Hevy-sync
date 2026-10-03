@@ -43,3 +43,15 @@ class DashboardTools(unittest.TestCase):
   with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(b),'b'))
   s=app.stats(3650)
   self.assertEqual(len(s['exercises']),1)
+
+ def test_data_confidence_does_not_invent_volume(self):
+  w=self.workout('coverage','2026-10-01')
+  w['exercises'][0]['sets']=[{'type':'normal','weight_kg':20,'reps':10},{'type':'normal','weight_kg':None,'reps':15},{'type':'normal','duration_seconds':60,'weight_kg':None,'reps':None}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'coverage'))
+  s=app.stats(3650); d=s['data_confidence']
+  self.assertEqual(s['summary']['volume'],200)
+  self.assertEqual(d['working_sets'],3)
+  self.assertEqual(d['weighted_sets'],1)
+  self.assertEqual(d['reps_only_sets'],1)
+  self.assertEqual(d['duration_sets'],1)
+  self.assertAlmostEqual(d['volume_coverage_pct'],33.3)
