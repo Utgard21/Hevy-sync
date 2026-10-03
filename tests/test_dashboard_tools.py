@@ -83,3 +83,19 @@ class DashboardTools(unittest.TestCase):
   self.assertEqual(e['muscle_source'],'hevy')
   self.assertTrue(any(m['muscle']=='Chest' for m in s['muscles']))
   self.assertFalse(any(m['muscle']=='Other' for m in s['muscles']))
+
+ def test_pace_requires_paired_distance_and_duration(self):
+  w=self.workout('paired','2026-10-01'); w['exercises']=[{'title':'Treadmill','sets':[{'type':'normal','distance_meters':3000},{'type':'normal','duration_seconds':1800}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'paired'))
+  e=app.stats(3650)['exercises'][0]
+  self.assertEqual(e['measurement_type'],'mixed'); self.assertIsNone(e['pace_seconds_per_km'])
+
+ def test_mixed_weighted_and_reps_only_is_not_forced_to_weighted(self):
+  w=self.workout('mixed','2026-10-01'); w['exercises']=[{'title':'Push Ups','sets':[{'type':'normal','weight_kg':10,'reps':10},{'type':'normal','reps':20}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'mixed'))
+  e=app.stats(3650)['exercises'][0]
+  self.assertEqual(e['measurement_type'],'mixed'); self.assertTrue(e['measurement_mixed']); self.assertEqual(e['volume'],100)
+
+ def test_invalid_cardio_measurements_are_rejected(self):
+  w=self.workout('badcardio','2026-10-01'); w['exercises'][0]['sets']=[{'type':'normal','duration_seconds':-1,'distance_meters':1000}]
+  with self.assertRaises(ValueError): app.validate(w)
