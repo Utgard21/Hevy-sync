@@ -115,3 +115,5 @@ dialog{width:min(850px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1
 .body-detail{fill:#1b2942;stroke:#3a4c69;stroke-width:1;opacity:.9;pointer-events:none}
 
 .heatmapExtras{width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-top:8px}.heatmapExtras>small{width:100%;text-align:center;color:#8290aa}.heatmapMuscleChip{border:1px solid color-mix(in srgb,var(--muscle-color) 70%,#fff);background:color-mix(in srgb,var(--muscle-color) 18%,#10182b);color:#eef4ff;padding:7px 10px;border-radius:999px;box-shadow:0 0 10px color-mix(in srgb,var(--muscle-color) 35%,transparent)}
+
+.muscle-shape.musclefocus{opacity:1!important;stroke:#fff!important;stroke-width:2.5!important;filter:drop-shadow(0 0 14px var(--muscle-color)) drop-shadow(0 0 24px var(--muscle-color))!important}.musclerow.musclefocus,.heatmapMuscleChip.musclefocus{outline:2px solid var(--muscle-color,#fff);outline-offset:2px}
