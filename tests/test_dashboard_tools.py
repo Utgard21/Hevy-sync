@@ -55,3 +55,15 @@ class DashboardTools(unittest.TestCase):
   self.assertEqual(d['reps_only_sets'],1)
   self.assertEqual(d['duration_sets'],1)
   self.assertAlmostEqual(d['volume_coverage_pct'],33.3)
+
+ def test_reps_only_exercise_uses_rep_metrics_without_fake_weight(self):
+  w=self.workout('pushups','2026-10-01'); w['exercises']=[{'title':'Push Ups','sets':[{'type':'normal','weight_kg':None,'reps':20},{'type':'normal','weight_kg':None,'reps':25}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'pushups'))
+  e=app.stats(3650)['exercises'][0]
+  self.assertEqual(e['measurement_type'],'reps'); self.assertEqual(e['best_reps'],25); self.assertEqual(e['best_weight'],0); self.assertEqual(e['volume'],0)
+
+ def test_treadmill_uses_recorded_distance_and_time(self):
+  w=self.workout('treadmill','2026-10-01'); w['exercises']=[{'title':'Treadmill','sets':[{'type':'normal','distance_meters':3000,'duration_seconds':1800,'weight_kg':None,'reps':None}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'treadmill'))
+  e=app.stats(3650)['exercises'][0]
+  self.assertEqual(e['measurement_type'],'distance'); self.assertEqual(e['total_distance_meters'],3000); self.assertEqual(e['total_duration_seconds'],1800); self.assertEqual(e['pace_seconds_per_km'],600); self.assertEqual(e['volume'],0)
