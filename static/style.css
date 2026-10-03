@@ -103,3 +103,6 @@ dialog{width:min(850px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1
 .textbutton{display:inline;padding:0;border:0;background:none;color:#99c5ff;font:inherit;cursor:pointer;box-shadow:none}.textbutton:hover{text-decoration:underline;filter:none}
 .aboutgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.aboutgrid .mini{padding:14px}.aboutgrid strong{display:block;margin-top:6px}
 @media(max-width:650px){.aboutgrid{grid-template-columns:repeat(2,1fr)}}
+
+/* Routine lifting equivalents */
+.routinecard{align-items:center}.liftbadge{margin-left:auto;min-width:145px;text-align:right;padding:8px 10px;border:1px solid #4a607b;border-radius:10px;background:#132034}.liftbadge small,.liftbadge span{display:block;font-size:9px;color:#9eb0c7}.liftbadge strong{display:block;font-size:17px;color:#e9bc7b!important;margin:2px 0}@media(max-width:600px){.routinecard{align-items:flex-start}.liftbadge{min-width:125px}}
