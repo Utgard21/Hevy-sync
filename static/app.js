@@ -1,3 +1,4 @@
+let bodyView='front';
 const MUSCLE_COLORS={Chest:'#96c7e8',Back:'#9ed8bd',Shoulders:'#b4c58a',Biceps:'#e4bd92',Triceps:'#91d7d3',Quads:'#e3d49a',Hamstrings:'#a8c9ad',Glutes:'#d9a18d',Calves:'#88aec3',Core:'#c4d9a2',Other:'#78909c'};
 let data;const $=id=>document.getElementById(id),num=n=>Number(n).toLocaleString(undefined,{maximumFractionDigits:1});
 function text(parent,tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;parent.append(e);return e}
