@@ -132,27 +132,27 @@ def stats(days=90,start_date=None,end_date=None):
    name=e['title']; key=exercise_key(name); targets=muscle_targets(name); primary=targets[0][0]; target_rows=[]
    for muscle,factor in targets:
     ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':set(),'last_trained':None,'exercises':set(),'exercise_names':set()}); ms['sessions'].add(w['id']); ms['last_trained']=day.isoformat(); ms['exercises'].add(name); ms['exercise_names'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); target_rows.append((ms,mw,factor))
-   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[]}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0
+   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[],'measurement_counts':{'weighted':0,'reps':0,'duration':0,'distance':0}}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0; session_duration=0; session_distance=0; best_reps=0
    for s in e['sets']:
     if s.get('type')=='warmup': continue
     weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0; dur=s.get('duration_seconds') or 0; dist=s.get('distance_meters') or 0; v=weight*reps
-    if weight>0 and reps>0: weighted_sets+=1
-    elif reps>0: reps_only_sets+=1
-    elif dur>0: duration_sets+=1
-    elif dist>0: distance_sets+=1
+    if weight>0 and reps>0: weighted_sets+=1; item['measurement_counts']['weighted']+=1
+    elif reps>0: reps_only_sets+=1; item['measurement_counts']['reps']+=1
+    elif dist>0: distance_sets+=1; item['measurement_counts']['distance']+=1
+    elif dur>0: duration_sets+=1; item['measurement_counts']['duration']+=1
     else: unmeasured_sets+=1
     total_sets+=1; total_reps+=reps; volume+=v; wvol+=v; dd['sets']+=1; dd['volume']+=v; b['sets']+=1; b['volume']+=v; mb['sets']+=1; mb['volume']+=v
     item['sets']+=1; item['reps']+=reps; item['volume']+=v
     prior_rep_weight=item.setdefault('_rep_best_by_weight',{}).get(str(weight),0) if weight>0 else 0
     for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
-    best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1
+    best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1; session_duration+=dur; session_distance+=dist; best_reps=max(best_reps,reps)
     if weight>0 and 1<=reps<=12: best_e1rm=max(best_e1rm,weight*(1+reps/30))
     if weight>0 and reps>0:
      bucket=str(int(reps)); old=item['rep_prs'].get(bucket,0)
      if weight>old: item['rep_prs'][bucket]=weight
      if prior_rep_weight and reps>prior_rep_weight: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Rep PR','value':round(reps),'unit':f'reps @ {round(weight,1)} kg'})
      item['_rep_best_by_weight'][str(weight)]=max(prior_rep_weight,reps)
-   old_weight=item['best_weight']; old_e1rm=item['e1rm']; item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm); item['history'].append({'date':day.isoformat(),'weight':best,'e1rm':round(best_e1rm,1),'volume':ev,'reps':session_reps,'sets':session_sets});
+   old_weight=item['best_weight']; old_e1rm=item['e1rm']; item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm); item['history'].append({'date':day.isoformat(),'weight':best,'e1rm':round(best_e1rm,1),'volume':ev,'reps':session_reps,'best_reps':best_reps,'sets':session_sets,'duration_seconds':session_duration,'distance_meters':session_distance});
    if best>old_weight and old_weight>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Weight PR','value':round(best,1),'unit':'kg'})
    if best_e1rm>old_e1rm and old_e1rm>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'e1RM PR','value':round(best_e1rm,1),'unit':'kg'})
   recent.append({'id':w['id'],'title':w['title'],'date':start.isoformat(),'exercises':len(w['exercises']),'volume':wvol,'minutes':round(max(0,(stamp(w['end_time'])-start).total_seconds())/60)})
@@ -181,6 +181,21 @@ def stats(days=90,start_date=None,end_date=None):
   best_streak=max(best_streak,streak); prev_goal_week=wk
  range_days=max(1,(report_end-cutoff).days+1); avg_week=round(len(selected)/max(1,range_days/7),1); avg_sets=round(total_sets/len(selected),1) if selected else 0; avg_volume=round(volume/len(selected)) if selected else 0
  top_day=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekdays.index(max(weekdays))] if selected else '-'; top_hour=hours.index(max(hours)) if selected else 0
+ for e in exercises.values():
+  counts=e['measurement_counts']; total=sum(counts.values())
+  if counts['weighted']>0: kind='weighted'
+  elif counts['distance']>0: kind='distance'
+  elif counts['duration']>0: kind='duration'
+  elif counts['reps']>0: kind='reps'
+  else: kind='unmeasured'
+  e['measurement_type']=kind
+  e['measurement_mixed']=sum(v>0 for v in counts.values())>1
+  e['best_reps']=max((h['best_reps'] for h in e['history']),default=0)
+  e['total_duration_seconds']=sum(h['duration_seconds'] for h in e['history'])
+  e['total_distance_meters']=sum(h['distance_meters'] for h in e['history'])
+  e['best_distance_meters']=max((h['distance_meters'] for h in e['history']),default=0)
+  e['best_duration_seconds']=max((h['duration_seconds'] for h in e['history']),default=0)
+  e['pace_seconds_per_km']=round(e['total_duration_seconds']/(e['total_distance_meters']/1000),1) if e['total_duration_seconds']>0 and e['total_distance_meters']>0 else None
  records=sorted([{'name':e['name'],'best_weight':round(e['best_weight'],1),'e1rm':round(e['e1rm'],1),'volume':round(e['volume'])} for e in exercises.values() if e['best_weight']>0],key=lambda x:x['e1rm'],reverse=True)[:10]
  monthly=[{'month':k,**v} for k,v in sorted(months.items())]; top_exercises=sorted([{'name':e['name'],'sessions':e['sessions'],'sets':e['sets'],'volume':round(e['volume'])} for e in exercises.values()],key=lambda x:x['sessions'],reverse=True)[:10]
  workout_types=sorted([{'name':k,'count':v} for k,v in titles.items()],key=lambda x:x['count'],reverse=True)[:8]
