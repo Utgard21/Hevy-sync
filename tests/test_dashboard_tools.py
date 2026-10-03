@@ -23,13 +23,13 @@ class DashboardTools(unittest.TestCase):
  def test_quality_duplicate_and_empty(self):
   a=self.workout('a','2026-09-01');b={**a,'id':'b'};empty={**a,'id':'c','title':'Empty','exercises':[]};q=app.quality_checks([a,b,empty]);self.assertEqual(q['duplicates'],1);self.assertEqual(q['flagged'],1);self.assertEqual(q['issues'][0]['id'],'c')
 
- def test_invalid_workout_excluded_from_analytics(self):
+ def test_long_workout_is_flagged_but_sets_are_preserved(self):
   good=self.workout('good','2026-09-01')
-  bad={**good,'id':'bad','start_time':'2026-09-02T08:00:00+03:00','end_time':'2026-09-02T14:00:00+03:00'}
-  with app.db() as db: db.execute('INSERT INTO workouts VALUES (?,?,?)',('bad','api',json.dumps(bad)))
+  long={**good,'id':'long','start_time':'2026-09-02T08:00:00+03:00','end_time':'2026-09-02T14:00:00+03:00'}
+  with app.db() as db: db.execute('INSERT INTO workouts VALUES (?,?,?)',('long','api',json.dumps(long)))
   s=app.stats(3650)
-  self.assertEqual(s['summary']['workouts'],1)
-  self.assertEqual(s['analytics_excluded'],1)
+  self.assertEqual(s['summary']['workouts'],2); self.assertEqual(s['summary']['volume'],400)
+  self.assertEqual(s['analytics_excluded'],0); self.assertEqual(s['quality']['flagged'],1)
 
  def test_load_ratio_requires_enough_sessions(self):
   self.workout('only','2026-10-01')
@@ -99,3 +99,11 @@ class DashboardTools(unittest.TestCase):
  def test_invalid_cardio_measurements_are_rejected(self):
   w=self.workout('badcardio','2026-10-01'); w['exercises'][0]['sets']=[{'type':'normal','duration_seconds':-1,'distance_meters':1000}]
   with self.assertRaises(ValueError): app.validate(w)
+
+ def test_pure_cardio_does_not_create_muscle_stimulus(self):
+  w=self.workout('cardio-muscle','2026-10-01'); w['exercises']=[{'title':'Mystery Cardio','exercise_template_id':'cardio-tpl','sets':[{'type':'normal','distance_meters':3000,'duration_seconds':1800}]}]
+  with app.db() as db:
+   db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'cardio-muscle'))
+   db.execute('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',('cardio-tpl',json.dumps({'id':'cardio-tpl','primary_muscle_group':'quads'})))
+  s=app.stats(3650)
+  self.assertFalse(any(m['sets']>0 for m in s['muscles']))
