@@ -106,3 +106,5 @@ dialog{width:min(850px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1
 
 /* Routine lifting equivalents */
 .routinecard{align-items:center}.liftbadge{margin-left:auto;min-width:145px;text-align:right;padding:8px 10px;border:1px solid #4a607b;border-radius:10px;background:#132034}.liftbadge small,.liftbadge span{display:block;font-size:9px;color:#9eb0c7}.liftbadge strong{display:block;font-size:17px;color:#e9bc7b!important;margin:2px 0}@media(max-width:600px){.routinecard{align-items:flex-start}.liftbadge{min-width:125px}}
+
+.cardioitem{padding:14px 0;border-bottom:1px solid #273450}.cardioitem:last-child{border-bottom:0}.cardiostats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.cardiostats span{padding:7px 10px;border-radius:999px;background:#10182b;border:1px solid #30405f;color:#b9c8dc;font-size:12px}
