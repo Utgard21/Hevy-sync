@@ -93,8 +93,10 @@ MUSCLE_MAP=[
  ('Hamstrings',['hamstring','romanian deadlift','rdl','stiff leg'],{'Glutes':.35}),('Glutes',['hip thrust','glute','kickback','bridge'],{}),
  ('Back',['deadlift'],{'Hamstrings':.5,'Glutes':.5}),('Calves',['calf','calves'],{}),('Core',['crunch','plank','ab wheel','sit up','sit-up','leg raise','russian twist'],{})
 ]
+NON_MUSCLE_EXERCISES=['treadmill','elliptical','stationary bike','exercise bike','cycling','running','walking','stair climber','rowing machine']
 def muscle_targets(name):
  n=name.lower()
+ if any(word in n for word in NON_MUSCLE_EXERCISES): return []
  for primary,words,secondary in MUSCLE_MAP:
   if any(word in n for word in words): return [(primary,1.0)]+list(secondary.items())
  return [('Other',1.0)]
@@ -129,7 +131,7 @@ def stats(days=90,start_date=None,end_date=None):
   b=weekly.setdefault(week,{'workouts':0,'sets':0,'volume':0,'minutes':0}); b['workouts']+=1; daily[day.isoformat()]=daily.get(day.isoformat(),0)+1; dd=daily_detail.setdefault(day.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0,'titles':[]}); dd['workouts']+=1; dd['titles'].append(w['title']); weekdays[day.weekday()]+=1; hours[start.hour]+=1
   seconds=max(0,(stamp(w['end_time'])-start).total_seconds()); duration+=seconds; dd['minutes']+=round(seconds/60); month=day.strftime('%Y-%m'); mb=months.setdefault(month,{'workouts':0,'volume':0,'sets':0,'minutes':0}); mb['workouts']+=1; mb['minutes']+=round(seconds/60); titles[w['title']]=titles.get(w['title'],0)+1; b['minutes']+=round(seconds/60); longest=max(longest,seconds); occurrences+=len(w['exercises']); wvol=0
   for e in w['exercises']:
-   name=e['title']; key=exercise_key(name); targets=muscle_targets(name); primary=targets[0][0]; target_rows=[]
+   name=e['title']; key=exercise_key(name); targets=muscle_targets(name); target_rows=[]
    for muscle,factor in targets:
     ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':set(),'last_trained':None,'exercises':set(),'exercise_names':set()}); ms['sessions'].add(w['id']); ms['last_trained']=day.isoformat(); ms['exercises'].add(name); ms['exercise_names'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); target_rows.append((ms,mw,factor))
    item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[],'measurement_counts':{'weighted':0,'reps':0,'duration':0,'distance':0}}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0; session_duration=0; session_distance=0; best_reps=0
