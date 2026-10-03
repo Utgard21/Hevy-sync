@@ -200,10 +200,8 @@ def stats(days=90,start_date=None,end_date=None):
  # Lifetime journey and useful lifetime records.
  lifetime=period_totals(workouts); lifetime_seconds=sum(max(0,(stamp(w['end_time'])-stamp(w['start_time'])).total_seconds()) for w in workouts)
  lifetime['hours']=round(lifetime_seconds/3600,1); lifetime['first_date']=min((stamp(w['start_time']).date().isoformat() for w in workouts),default=None)
- all_days=sorted(set(stamp(w['start_time']).date() for w in workouts)); life_best=life_streak=0; life_prev=None
- for ld in all_days:
-  life_streak=life_streak+1 if life_prev and ld==life_prev+timedelta(days=1) else 1; life_best=max(life_best,life_streak); life_prev=ld
- lifetime['best_streak']=life_best
+ # Lifetime streak uses the same completed-week workout-goal definition as the dashboard streak.
+ lifetime['best_streak']=best_streak
  # Progress cards compare the first and latest meaningful best weight in the selected range.
  progression=[]
  for e in exercises.values():
