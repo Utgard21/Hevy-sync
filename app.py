@@ -17,7 +17,7 @@ class ClosingConnection(sqlite3.Connection):
   try: return super().__exit__(exc_type,exc,tb)
   finally: self.close()
 def db():
- c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); return c
+ c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS exercise_templates (id TEXT PRIMARY KEY,payload TEXT NOT NULL)'); return c
 def stamp(s):
  d=datetime.fromisoformat(s.replace('Z','+00:00')); return d.replace(tzinfo=TZ) if d.tzinfo is None else d.astimezone(TZ)
 def validate(w):
@@ -50,11 +50,12 @@ def sync():
  STATUS.update(syncing=True,error=None)
  try:
   workouts=fetch('workouts','workouts',10)
+  templates=fetch('exercise_templates','exercise_templates',100)
   for w in workouts: validate(w)
   # Replace the API snapshot only after every page succeeds. CSV history is retained.
   with db() as c:
    c.execute("DELETE FROM workouts WHERE source='api'")
-   c.executemany('INSERT OR REPLACE INTO workouts VALUES (?,?,?)',[(w['id'],'api',json.dumps(w)) for w in workouts])
+   c.executemany('INSERT OR REPLACE INTO workouts VALUES (?,?,?)',[(w['id'],'api',json.dumps(w)) for w in workouts]); c.execute('DELETE FROM exercise_templates'); c.executemany('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',[(t['id'],json.dumps(t)) for t in templates if t.get('id')])
   STATUS['last_sync']=datetime.now(timezone.utc).isoformat()
  except HTTPError as e: STATUS['error']=f'Hevy returned HTTP {e.code}. Check your API key and Pro access.'
  except Exception: STATUS['error']='Sync failed. Check connectivity and try again; cached workouts are preserved.'
@@ -95,6 +96,17 @@ MUSCLE_MAP=[
  ('Back',['deadlift'],{'Hamstrings':.5,'Glutes':.5}),('Calves',['calf','calves'],{}),('Core',['crunch','plank','ab wheel','sit up','sit-up','leg raise','russian twist'],{})
 ]
 NON_MUSCLE_EXERCISES=['treadmill','elliptical','stationary bike','exercise bike','cycling','running','walking','stair climber','rowing machine']
+def template_muscles(t):
+ if not t: return None
+ primary=t.get('primary_muscle_group') or t.get('muscle_group')
+ secondary=t.get('secondary_muscle_groups') or []
+ if not primary: return None
+ def label(v): return str(v).replace('_',' ').title()
+ rows=[(label(primary),1.0)]
+ for m in secondary:
+  lm=label(m)
+  if lm not in [x[0] for x in rows]: rows.append((lm,.35))
+ return rows
 def muscle_targets(name):
  n=name.lower()
  if any(word in n for word in NON_MUSCLE_EXERCISES): return []
@@ -112,7 +124,7 @@ def set_work(s):
  duration=s.get('duration_seconds') or 0; distance=s.get('distance_meters') or 0
  return {'weight':weight,'reps':reps,'volume':weight*reps,'duration':duration,'distance':distance,'has_load':weight>0 and reps>0}
 def stats(days=90,start_date=None,end_date=None):
- with db() as c: raw=[json.loads(r[0]) for r in c.execute('SELECT payload FROM workouts')]
+ with db() as c: raw=[json.loads(r[0]) for r in c.execute('SELECT payload FROM workouts')]; template_by_id={r[0]:json.loads(r[1]) for r in c.execute('SELECT id,payload FROM exercise_templates')}
  # API wins over CSV when title and timestamps match.
  raw.sort(key=lambda w: str(w['id']).startswith('csv-')); seen=set(); workouts=[]
  for w in raw:
@@ -132,10 +144,10 @@ def stats(days=90,start_date=None,end_date=None):
   b=weekly.setdefault(week,{'workouts':0,'sets':0,'volume':0,'minutes':0}); b['workouts']+=1; daily[day.isoformat()]=daily.get(day.isoformat(),0)+1; dd=daily_detail.setdefault(day.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0,'titles':[]}); dd['workouts']+=1; dd['titles'].append(w['title']); weekdays[day.weekday()]+=1; hours[start.hour]+=1
   seconds=max(0,(stamp(w['end_time'])-start).total_seconds()); duration+=seconds; dd['minutes']+=round(seconds/60); month=day.strftime('%Y-%m'); mb=months.setdefault(month,{'workouts':0,'volume':0,'sets':0,'minutes':0}); mb['workouts']+=1; mb['minutes']+=round(seconds/60); titles[w['title']]=titles.get(w['title'],0)+1; b['minutes']+=round(seconds/60); longest=max(longest,seconds); occurrences+=len(w['exercises']); wvol=0
   for e in w['exercises']:
-   name=e['title']; key=exercise_key(name); targets=muscle_targets(name); target_rows=[]
+   name=e['title']; key=exercise_key(name); template=template_by_id.get(e.get('exercise_template_id')); targets=template_muscles(template); muscle_source='hevy' if targets else 'fallback'; targets=targets if targets is not None else muscle_targets(name); target_rows=[]
    for muscle,factor in targets:
     ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':set(),'last_trained':None,'exercises':set(),'exercise_names':set()}); ms['sessions'].add(w['id']); ms['last_trained']=day.isoformat(); ms['exercises'].add(name); ms['exercise_names'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); target_rows.append((ms,mw,factor))
-   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[],'measurement_counts':{'weighted':0,'reps':0,'duration':0,'distance':0}}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0; session_duration=0; session_distance=0; best_reps=0
+   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[],'measurement_counts':{'weighted':0,'reps':0,'duration':0,'distance':0},'muscle_source':muscle_source,'hevy_template':template}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0; session_duration=0; session_distance=0; best_reps=0
    for s in e['sets']:
     if s.get('type')=='warmup': continue
     weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0; dur=s.get('duration_seconds') or 0; dist=s.get('distance_meters') or 0; v=weight*reps
