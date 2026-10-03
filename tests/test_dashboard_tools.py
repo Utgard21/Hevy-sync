@@ -107,3 +107,9 @@ class DashboardTools(unittest.TestCase):
    db.execute('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',('cardio-tpl',json.dumps({'id':'cardio-tpl','primary_muscle_group':'quads'})))
   s=app.stats(3650)
   self.assertFalse(any(m['sets']>0 for m in s['muscles']))
+
+ def test_cardio_summary_exposes_recorded_measurements(self):
+  w=self.workout('cardio-summary','2026-10-01'); w['exercises']=[{'title':'Treadmill','sets':[{'type':'normal','distance_meters':3000,'duration_seconds':1800}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'cardio-summary'))
+  s=app.stats(3650); row=next(x for x in s['cardio'] if x['name']=='Treadmill')
+  self.assertEqual(row['distance_meters'],3000); self.assertEqual(row['duration_seconds'],1800); self.assertEqual(row['pace_seconds_per_km'],600)
