@@ -67,3 +67,9 @@ class DashboardTools(unittest.TestCase):
   with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'treadmill'))
   e=app.stats(3650)['exercises'][0]
   self.assertEqual(e['measurement_type'],'distance'); self.assertEqual(e['total_distance_meters'],3000); self.assertEqual(e['total_duration_seconds'],1800); self.assertEqual(e['pace_seconds_per_km'],600); self.assertEqual(e['volume'],0)
+
+ def test_routine_volume_uses_only_recorded_weighted_sets(self):
+  w=self.workout('routine','2026-10-01'); w['title']='Push Day'; w['exercises'][0]['sets']=[{'type':'normal','weight_kg':50,'reps':10},{'type':'normal','weight_kg':None,'reps':20}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'routine'))
+  r=next(x for x in app.stats(3650)['workout_types'] if x['name']=='Push Day')
+  self.assertEqual(r['volume'],500); self.assertEqual(r['weighted_sets'],1)
