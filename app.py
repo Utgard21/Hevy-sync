@@ -79,6 +79,7 @@ def parse_csv(text):
   e['sets'].append({'type':r.get('set_type','normal'),'weight_kg':float(r['weight_kg']) if r['weight_kg'] else None,'reps':float(r['reps']) if r['reps'] else None})
  return [validate(w) for w in groups.values()]
 MUSCLE_MAP=[
+ ('Chest',['around the world'],{'Back':.35,'Shoulders':.35}),
  ('Chest',['bench press','chest press','chest fly','chest flye','pec deck','push up','push-up','cable crossover'],{'Triceps':.35,'Shoulders':.25}),
  ('Back',['row','pulldown','pull down','pull-up','pull up','chin-up','chin up','lat pull'],{'Biceps':.35}),
  ('Shoulders',['shoulder press','overhead press','military press'],{'Triceps':.35}),('Shoulders',['lateral raise','front raise','rear delt','face pull','upright row'],{}),
