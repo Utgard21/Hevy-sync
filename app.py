@@ -98,6 +98,16 @@ def muscle_targets(name):
  for primary,words,secondary in MUSCLE_MAP:
   if any(word in n for word in words): return [(primary,1.0)]+list(secondary.items())
  return [('Other',1.0)]
+def analytics_valid(w):
+ start=stamp(w['start_time']); end=stamp(w['end_time']); minutes=(end-start).total_seconds()/60
+ return 0<minutes<=240 and start<=datetime.now(TZ) and bool(w.get('exercises')) and any(e.get('sets') for e in w.get('exercises',[]))
+def exercise_key(name):
+ return ' '.join(name.lower().replace('-', ' ').split())
+def set_work(s):
+ if s.get('type')=='warmup': return None
+ weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0
+ duration=s.get('duration_seconds') or 0; distance=s.get('distance_meters') or 0
+ return {'weight':weight,'reps':reps,'volume':weight*reps,'duration':duration,'distance':distance,'has_load':weight>0 and reps>0}
 def stats(days=90,start_date=None,end_date=None):
  with db() as c: raw=[json.loads(r[0]) for r in c.execute('SELECT payload FROM workouts')]
  # API wins over CSV when title and timestamps match.
@@ -105,6 +115,8 @@ def stats(days=90,start_date=None,end_date=None):
  for w in raw:
   k=(w['title'],stamp(w['start_time']).isoformat(),stamp(w['end_time']).isoformat())
   if k not in seen: seen.add(k); workouts.append(w)
+ stored_workouts=workouts[:]
+ workouts=[w for w in workouts if analytics_valid(w)]
  now=datetime.now(TZ); today=now.date(); monday=today-timedelta(days=today.weekday()); cutoff=today-timedelta(days=days-1); report_end=today
  if start_date or end_date:
   if not start_date or not end_date: raise ValueError('Both dates are required')
@@ -117,21 +129,24 @@ def stats(days=90,start_date=None,end_date=None):
   b=weekly.setdefault(week,{'workouts':0,'sets':0,'volume':0,'minutes':0}); b['workouts']+=1; daily[day.isoformat()]=daily.get(day.isoformat(),0)+1; dd=daily_detail.setdefault(day.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0,'titles':[]}); dd['workouts']+=1; dd['titles'].append(w['title']); weekdays[day.weekday()]+=1; hours[start.hour]+=1
   seconds=max(0,(stamp(w['end_time'])-start).total_seconds()); duration+=seconds; dd['minutes']+=round(seconds/60); month=day.strftime('%Y-%m'); mb=months.setdefault(month,{'workouts':0,'volume':0,'sets':0,'minutes':0}); mb['workouts']+=1; mb['minutes']+=round(seconds/60); titles[w['title']]=titles.get(w['title'],0)+1; b['minutes']+=round(seconds/60); longest=max(longest,seconds); occurrences+=len(w['exercises']); wvol=0
   for e in w['exercises']:
-   name=e['title']; targets=muscle_targets(name); primary=targets[0][0]; target_rows=[]
+   name=e['title']; key=exercise_key(name); targets=muscle_targets(name); primary=targets[0][0]; target_rows=[]
    for muscle,factor in targets:
     ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':set(),'last_trained':None,'exercises':set(),'exercise_names':set()}); ms['sessions'].add(w['id']); ms['last_trained']=day.isoformat(); ms['exercises'].add(name); ms['exercise_names'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); target_rows.append((ms,mw,factor))
-   item=exercises.setdefault(name,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[]}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0
+   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[]}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0
    for s in e['sets']:
     if s.get('type')=='warmup': continue
     weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0; v=weight*reps
     total_sets+=1; total_reps+=reps; volume+=v; wvol+=v; dd['sets']+=1; dd['volume']+=v; b['sets']+=1; b['volume']+=v; mb['sets']+=1; mb['volume']+=v
     item['sets']+=1; item['reps']+=reps; item['volume']+=v
+    prior_rep_weight=item.setdefault('_rep_best_by_weight',{}).get(str(weight),0) if weight>0 else 0
     for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
     best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1
     if weight>0 and 1<=reps<=12: best_e1rm=max(best_e1rm,weight*(1+reps/30))
     if weight>0 and reps>0:
      bucket=str(int(reps)); old=item['rep_prs'].get(bucket,0)
      if weight>old: item['rep_prs'][bucket]=weight
+     if prior_rep_weight and reps>prior_rep_weight: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Rep PR','value':round(reps),'unit':f'reps @ {round(weight,1)} kg'})
+     item['_rep_best_by_weight'][str(weight)]=max(prior_rep_weight,reps)
    old_weight=item['best_weight']; old_e1rm=item['e1rm']; item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm); item['history'].append({'date':day.isoformat(),'weight':best,'e1rm':round(best_e1rm,1),'volume':ev,'reps':session_reps,'sets':session_sets});
    if best>old_weight and old_weight>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Weight PR','value':round(best,1),'unit':'kg'})
    if best_e1rm>old_e1rm and old_e1rm>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'e1RM PR','value':round(best_e1rm,1),'unit':'kg'})
@@ -177,7 +192,7 @@ def stats(days=90,start_date=None,end_date=None):
  for k in ('workouts','sets','reps','volume'):
   p=comparison['previous'][k]; comparison[k+'_change']=round((comparison['current'][k]-p)/p*100,1) if p else None
  recent28=[w for w in workouts if today-timedelta(days=27)<=stamp(w['start_time']).date()<=today]; recent7=[w for w in workouts if today-timedelta(days=6)<=stamp(w['start_time']).date()<=today]
- load28=period_totals(recent28)['volume']; load7=period_totals(recent7)['volume']; load={'volume_7d':load7,'volume_28d':load28,'ratio':round(load7/(load28/4),2) if load28 else 0}
+ load28=period_totals(recent28)['volume']; load7=period_totals(recent7)['volume']; load_ready=len(recent28)>=4 and load28>0; load={'volume_7d':load7,'volume_28d':load28,'ratio':round(load7/(load28/4),2) if load_ready else None,'available':load_ready}
  insights=[]
  if comparison['volume_change'] is not None: insights.append({'icon':'📈' if comparison['volume_change']>=0 else '📉','title':'Training volume','text':f"{abs(comparison['volume_change'])}% {'higher' if comparison['volume_change']>=0 else 'lower'} than the previous period."})
  if comparison['workouts_change'] is not None: insights.append({'icon':'🔥','title':'Consistency','text':f"{comparison['current']['workouts']} workouts vs {comparison['previous']['workouts']} in the previous period."})
@@ -213,7 +228,7 @@ def stats(days=90,start_date=None,end_date=None):
  achievements=[]
  for goal,label in [(1,'First workout'),(10,'10 workouts'),(25,'25 workouts'),(50,'50 workouts'),(100,'100 workouts'),(250,'250 workouts')]: achievements.append({'label':label,'unlocked':len(workouts)>=goal,'progress':min(100,round(len(workouts)/goal*100))})
  for goal,label in [(10000,'10K kg lifted'),(50000,'50K kg lifted'),(100000,'100K kg lifted'),(500000,'500K kg lifted')]: achievements.append({'label':label,'unlocked':lifetime['volume']>=goal,'progress':min(100,round(lifetime['volume']/goal*100))})
- return {'date_range':{'start':cutoff.isoformat(),'end':report_end.isoformat()},'quality':quality_checks(raw),'same_weight':same_weight_progress(selected),'version':VERSION,'status':STATUS.copy(),'week_totals':period_totals([w for w in workouts if monday<=stamp(w['start_time']).date()<=today]),'days':days,'summary':{'workouts':len(selected),'all_time':len(workouts),'this_week':sum(monday<=stamp(w['start_time']).date()<=today for w in workouts),'this_month':sum(stamp(w['start_time']).date().replace(day=1)==today.replace(day=1) for w in workouts),'exercises':len(exercises),'exercise_entries':occurrences,'sets':total_sets,'reps':total_reps,'volume':round(volume),'hours':round(duration/3600,1),'average_minutes':round(duration/60/len(selected)) if selected else 0,'avg_week':avg_week,'avg_sets':avg_sets,'avg_volume':avg_volume,'longest_minutes':round(longest/60),'active_days':len(set(active_days)),'current_streak':current_streak,'best_streak':best_streak,'favorite_day':top_day,'favorite_hour':top_hour},'weekly':[{'date':k,**v} for k,v in sorted(weekly.items())],'daily':daily,'daily_detail':daily_detail,'calendar_detail':calendar_detail,'lifetime':lifetime,'progression':progression,'insights':insights,'muscles':muscles,'muscle_weekly':muscle_weekly,'exercises':sorted(exercises.values(),key=lambda e:e['sessions'],reverse=True),'recent':recent[::-1][:30],'records':records,'weekdays':weekdays,'hours':hours,'monthly':monthly,'top_exercises':top_exercises,'workout_types':workout_types,'achievements':achievements,'comparison':comparison,'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}
+ return {'date_range':{'start':cutoff.isoformat(),'end':report_end.isoformat()},'quality':quality_checks(raw),'same_weight':same_weight_progress(selected),'version':VERSION,'status':STATUS.copy(),'streak_goal':workout_goal,'analytics_excluded':len(stored_workouts)-len(workouts),'week_totals':period_totals([w for w in workouts if monday<=stamp(w['start_time']).date()<=today]),'days':days,'summary':{'workouts':len(selected),'all_time':len(workouts),'this_week':sum(monday<=stamp(w['start_time']).date()<=today for w in workouts),'this_month':sum(stamp(w['start_time']).date().replace(day=1)==today.replace(day=1) for w in workouts),'exercises':len(exercises),'exercise_entries':occurrences,'sets':total_sets,'reps':total_reps,'volume':round(volume),'hours':round(duration/3600,1),'average_minutes':round(duration/60/len(selected)) if selected else 0,'avg_week':avg_week,'avg_sets':avg_sets,'avg_volume':avg_volume,'longest_minutes':round(longest/60),'active_days':len(set(active_days)),'current_streak':current_streak,'best_streak':best_streak,'favorite_day':top_day,'favorite_hour':top_hour},'weekly':[{'date':k,**v} for k,v in sorted(weekly.items())],'daily':daily,'daily_detail':daily_detail,'calendar_detail':calendar_detail,'lifetime':lifetime,'progression':progression,'insights':insights,'muscles':muscles,'muscle_weekly':muscle_weekly,'exercises':sorted([{k:v for k,v in e.items() if not k.startswith('_')} for e in exercises.values()],key=lambda e:e['sessions'],reverse=True),'recent':recent[::-1][:30],'records':records,'weekdays':weekdays,'hours':hours,'monthly':monthly,'top_exercises':top_exercises,'workout_types':workout_types,'achievements':achievements,'comparison':comparison,'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}
 def settings(update=None):
  defaults={'workouts':4,'sets':60,'range':90}
  with db() as c:
@@ -237,7 +252,7 @@ def quality_checks(rows):
   if not w.get('exercises') or not any(e.get('sets') for e in w.get('exercises',[])): reasons.append('No logged sets')
   if stamp(w['start_time'])>datetime.now(TZ): reasons.append('Workout date is in the future')
   if reasons: issues.append({'id':w['id'],'title':w['title'],'date':stamp(w['start_time']).date().isoformat(),'reasons':reasons})
- return {'duplicates':duplicates,'flagged':len(issues),'issues':issues[:50],'checked':len(rows)}
+ return {'duplicates':duplicates,'flagged':len(issues),'excluded':len(issues),'issues':issues[:50],'checked':len(rows)}
 
 def same_weight_progress(rows):
  grouped={}
