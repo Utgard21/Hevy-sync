@@ -115,7 +115,7 @@ def muscle_targets(name):
  return [('Other',1.0)]
 def analytics_valid(w):
  start=stamp(w['start_time']); end=stamp(w['end_time']); minutes=(end-start).total_seconds()/60
- return 0<minutes<=240 and start<=datetime.now(TZ) and bool(w.get('exercises')) and any(e.get('sets') for e in w.get('exercises',[]))
+ return minutes>0 and start<=datetime.now(TZ) and bool(w.get('exercises')) and any(e.get('sets') for e in w.get('exercises',[]))
 def exercise_key(name):
  return ' '.join(name.lower().replace('-', ' ').split())
 def set_work(s):
@@ -159,7 +159,8 @@ def stats(days=90,start_date=None,end_date=None):
     total_sets+=1; total_reps+=reps; volume+=v; wvol+=v; dd['sets']+=1; dd['volume']+=v; b['sets']+=1; b['volume']+=v; mb['sets']+=1; mb['volume']+=v
     item['sets']+=1; item['reps']+=reps; item['volume']+=v
     prior_rep_weight=item.setdefault('_rep_best_by_weight',{}).get(str(weight),0) if weight>0 else 0
-    for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
+    if reps>0:
+     for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
     best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1; session_duration+=dur; session_distance+=dist; paired_duration+=dur if dur>0 and dist>0 else 0; paired_distance+=dist if dur>0 and dist>0 else 0; best_reps=max(best_reps,reps)
     if weight>0 and 1<=reps<=12: best_e1rm=max(best_e1rm,weight*(1+reps/30))
     if weight>0 and reps>0:
@@ -290,11 +291,12 @@ def quality_checks(rows):
   if key in seen: duplicates+=1
   seen.add(key); minutes=(stamp(w['end_time'])-stamp(w['start_time'])).total_seconds()/60
   reasons=[]
-  if minutes<=0 or minutes>240: reasons.append('Duration is zero, negative, or over 4 hours')
+  if minutes<=0: reasons.append('Duration is zero or negative')
+  elif minutes>240: reasons.append('Duration is over 4 hours; duration is flagged but recorded sets remain in analytics')
   if not w.get('exercises') or not any(e.get('sets') for e in w.get('exercises',[])): reasons.append('No logged sets')
   if stamp(w['start_time'])>datetime.now(TZ): reasons.append('Workout date is in the future')
   if reasons: issues.append({'id':w['id'],'title':w['title'],'date':stamp(w['start_time']).date().isoformat(),'reasons':reasons})
- return {'duplicates':duplicates,'flagged':len(issues),'excluded':len(issues),'issues':issues[:50],'checked':len(rows)}
+ excluded=sum(not analytics_valid(w) for w in rows); return {'duplicates':duplicates,'flagged':len(issues),'excluded':excluded,'issues':issues[:50],'checked':len(rows)}
 
 def same_weight_progress(rows):
  grouped={}
