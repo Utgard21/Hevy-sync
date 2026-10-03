@@ -9,3 +9,19 @@ class ProgressFeatures(unittest.TestCase):
   w={'id':'details-test','title':'Push','start_time':start.isoformat(),'end_time':(start+timedelta(hours=1)).isoformat(),'exercises':[{'title':'Bench Press','sets':[{'type':'normal','weight_kg':20,'reps':10},{'type':'normal','weight_kg':20,'reps':12},{'type':'warmup','weight_kg':10,'reps':5}]}]}
   with app.db() as c:c.execute('INSERT INTO workouts VALUES (?,?,?)',(w['id'],'api',json.dumps(w)))
   s=app.stats(30);self.assertEqual(s['week_totals'],{'workouts':1,'sets':2,'reps':22,'volume':440});self.assertEqual(s['recent'][0]['id'],w['id']);self.assertEqual(s['calendar_detail'][start.date().isoformat()]['sessions'][0]['id'],w['id']);h=s['exercises'][0]['history'][0];self.assertEqual(h['reps'],22);self.assertEqual(h['sets'],2);self.assertEqual(h['volume'],440)
+
+ def test_weekly_streak_survives_rest_day(self):
+  now=datetime.now(app.TZ)
+  monday=now.date()-timedelta(days=now.weekday())
+  app.settings({'workouts':2,'sets':60,'range':90})
+  for offset in (7,6,0):
+   day=monday-timedelta(days=offset)
+   ident='streak-'+day.isoformat()
+   self.workout_for_streak(ident,day)
+  s=app.stats(90)
+  self.assertGreaterEqual(s['summary']['current_streak'],1)
+
+ def workout_for_streak(self,ident,day):
+  start=datetime.combine(day,datetime.min.time(),tzinfo=app.TZ).replace(hour=8)
+  w={'id':ident,'title':'Training','start_time':start.isoformat(),'end_time':(start+timedelta(hours=1)).isoformat(),'exercises':[{'title':'Bench Press','sets':[{'type':'normal','weight_kg':20,'reps':10}]}]}
+  with app.db() as db: db.execute('INSERT INTO workouts VALUES (?,?,?)',(ident,'api',json.dumps(w)))
