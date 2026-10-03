@@ -27,7 +27,7 @@ def validate(w):
  for e in w['exercises']:
   if not isinstance(e.get('sets'),list): raise ValueError('Invalid sets')
   for s in e['sets']:
-   for k in ['weight_kg','reps']:
+   for k in ['weight_kg','reps','duration_seconds','distance_meters']:
     if s.get(k) is not None and (not isinstance(s[k],(int,float)) or not math.isfinite(s[k]) or s[k]<0): raise ValueError('Invalid set values')
  return w
 def fetch(path,field,size):
@@ -77,7 +77,7 @@ def parse_csv(text):
   if key not in groups: groups[key]={'id':'csv-'+hashlib.sha256('|'.join(key).encode()).hexdigest(),'title':r['title'],'start_time':start,'end_time':end,'exercises':[]}
   w=groups[key]; title=r['exercise_title']; e=next((e for e in w['exercises'] if e['title']==title),None)
   if e is None: e={'title':title,'exercise_template_id':title,'sets':[]}; w['exercises'].append(e)
-  e['sets'].append({'type':r.get('set_type','normal'),'weight_kg':float(r['weight_kg']) if r['weight_kg'] else None,'reps':float(r['reps']) if r['reps'] else None})
+  e['sets'].append({'type':r.get('set_type','normal'),'weight_kg':float(r['weight_kg']) if r['weight_kg'] else None,'reps':float(r['reps']) if r['reps'] else None,'duration_seconds':float(r['duration_seconds']) if r.get('duration_seconds') else None,'distance_meters':float(r['distance_meters']) if r.get('distance_meters') else None})
  return [validate(w) for w in groups.values()]
 MUSCLE_MAP=[
  ('Chest',['around the world'],{'Back':.35,'Shoulders':.35}),
@@ -137,17 +137,17 @@ def stats(days=90,start_date=None,end_date=None):
   if not start_date or not end_date: raise ValueError('Both dates are required')
   cutoff=datetime.strptime(start_date,'%Y-%m-%d').date(); report_end=datetime.strptime(end_date,'%Y-%m-%d').date()
   if cutoff>report_end or (report_end-cutoff).days>36500: raise ValueError('Invalid date range')
- weekly={}; daily={}; daily_detail={}; exercises={}; muscle_stats={}; muscle_weeks={}; recent=[]; weekdays=[0]*7; hours=[0]*24; months={}; titles={}; prs=[]; total_sets=total_reps=volume=duration=occurrences=0; longest=0; weighted_sets=reps_only_sets=duration_sets=distance_sets=unmeasured_sets=0
+ weekly={}; daily={}; daily_detail={}; exercises={}; muscle_stats={}; muscle_weeks={}; recent=[]; weekdays=[0]*7; hours=[0]*24; months={}; titles={}; prs=[]; total_sets=total_reps=volume=duration=occurrences=0; longest=0; weighted_sets=reps_only_sets=duration_sets=distance_sets=unmeasured_sets=0; metadata_sources={'hevy':set(),'fallback':set(),'unmapped':set()}
  selected=[w for w in workouts if cutoff<=stamp(w['start_time']).date()<=report_end]
  for w in sorted(selected,key=lambda w:w['start_time']):
   start=stamp(w['start_time']); day=start.date(); week=(day-timedelta(days=day.weekday())).isoformat()
   b=weekly.setdefault(week,{'workouts':0,'sets':0,'volume':0,'minutes':0}); b['workouts']+=1; daily[day.isoformat()]=daily.get(day.isoformat(),0)+1; dd=daily_detail.setdefault(day.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0,'titles':[]}); dd['workouts']+=1; dd['titles'].append(w['title']); weekdays[day.weekday()]+=1; hours[start.hour]+=1
   seconds=max(0,(stamp(w['end_time'])-start).total_seconds()); duration+=seconds; dd['minutes']+=round(seconds/60); month=day.strftime('%Y-%m'); mb=months.setdefault(month,{'workouts':0,'volume':0,'sets':0,'minutes':0}); mb['workouts']+=1; mb['minutes']+=round(seconds/60); titles[w['title']]=titles.get(w['title'],0)+1; b['minutes']+=round(seconds/60); longest=max(longest,seconds); occurrences+=len(w['exercises']); wvol=0
   for e in w['exercises']:
-   name=e['title']; key=exercise_key(name); template=template_by_id.get(e.get('exercise_template_id')); targets=template_muscles(template); muscle_source='hevy' if targets else 'fallback'; targets=targets if targets is not None else muscle_targets(name); target_rows=[]
+   name=e['title']; key=exercise_key(name); template=template_by_id.get(e.get('exercise_template_id')); targets=template_muscles(template); muscle_source='hevy' if targets else 'fallback'; targets=targets if targets is not None else muscle_targets(name); muscle_source='unmapped' if targets==[('Other',1.0)] else muscle_source; metadata_sources[muscle_source].add(key); target_rows=[]
    for muscle,factor in targets:
     ms=muscle_stats.setdefault(muscle,{'muscle':muscle,'sets':0,'reps':0,'volume':0,'sessions':set(),'last_trained':None,'exercises':set(),'exercise_names':set()}); ms['sessions'].add(w['id']); ms['last_trained']=day.isoformat(); ms['exercises'].add(name); ms['exercise_names'].add(name); mw=muscle_weeks.setdefault(week,{}).setdefault(muscle,{'sets':0,'volume':0}); target_rows.append((ms,mw,factor))
-   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[],'measurement_counts':{'weighted':0,'reps':0,'duration':0,'distance':0},'muscle_source':muscle_source,'hevy_template':template}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0; session_duration=0; session_distance=0; best_reps=0
+   item=exercises.setdefault(key,{'name':name,'sessions':0,'sets':0,'reps':0,'volume':0,'best_weight':0,'e1rm':0,'rep_prs':{},'history':[],'measurement_counts':{'weighted':0,'reps':0,'duration':0,'distance':0},'muscle_source':muscle_source,'hevy_template':template}); item['sessions']+=1; best=0; best_e1rm=0; ev=0; session_reps=0; session_sets=0; session_duration=0; session_distance=0; paired_duration=0; paired_distance=0; best_reps=0
    for s in e['sets']:
     if s.get('type')=='warmup': continue
     weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0; dur=s.get('duration_seconds') or 0; dist=s.get('distance_meters') or 0; v=weight*reps
@@ -160,14 +160,14 @@ def stats(days=90,start_date=None,end_date=None):
     item['sets']+=1; item['reps']+=reps; item['volume']+=v
     prior_rep_weight=item.setdefault('_rep_best_by_weight',{}).get(str(weight),0) if weight>0 else 0
     for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
-    best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1; session_duration+=dur; session_distance+=dist; best_reps=max(best_reps,reps)
+    best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1; session_duration+=dur; session_distance+=dist; paired_duration+=dur if dur>0 and dist>0 else 0; paired_distance+=dist if dur>0 and dist>0 else 0; best_reps=max(best_reps,reps)
     if weight>0 and 1<=reps<=12: best_e1rm=max(best_e1rm,weight*(1+reps/30))
     if weight>0 and reps>0:
      bucket=str(int(reps)); old=item['rep_prs'].get(bucket,0)
      if weight>old: item['rep_prs'][bucket]=weight
      if prior_rep_weight and reps>prior_rep_weight: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Rep PR','value':round(reps),'unit':f'reps @ {round(weight,1)} kg'})
      item['_rep_best_by_weight'][str(weight)]=max(prior_rep_weight,reps)
-   old_weight=item['best_weight']; old_e1rm=item['e1rm']; item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm); item['history'].append({'date':day.isoformat(),'weight':best,'e1rm':round(best_e1rm,1),'volume':ev,'reps':session_reps,'best_reps':best_reps,'sets':session_sets,'duration_seconds':session_duration,'distance_meters':session_distance});
+   old_weight=item['best_weight']; old_e1rm=item['e1rm']; item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm); item['history'].append({'date':day.isoformat(),'weight':best,'e1rm':round(best_e1rm,1),'volume':ev,'reps':session_reps,'best_reps':best_reps,'sets':session_sets,'duration_seconds':session_duration,'distance_meters':session_distance,'paired_duration_seconds':paired_duration,'paired_distance_meters':paired_distance});
    if best>old_weight and old_weight>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Weight PR','value':round(best,1),'unit':'kg'})
    if best_e1rm>old_e1rm and old_e1rm>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'e1RM PR','value':round(best_e1rm,1),'unit':'kg'})
   recent.append({'id':w['id'],'title':w['title'],'date':start.isoformat(),'exercises':len(w['exercises']),'volume':wvol,'minutes':round(max(0,(stamp(w['end_time'])-start).total_seconds())/60)})
@@ -198,19 +198,16 @@ def stats(days=90,start_date=None,end_date=None):
  top_day=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekdays.index(max(weekdays))] if selected else '-'; top_hour=hours.index(max(hours)) if selected else 0
  for e in exercises.values():
   counts=e['measurement_counts']; total=sum(counts.values())
-  if counts['weighted']>0: kind='weighted'
-  elif counts['distance']>0: kind='distance'
-  elif counts['duration']>0: kind='duration'
-  elif counts['reps']>0: kind='reps'
-  else: kind='unmeasured'
+  active=[k for k,v in counts.items() if v>0]
+  kind='mixed' if len(active)>1 else (active[0] if active else 'unmeasured')
   e['measurement_type']=kind
-  e['measurement_mixed']=sum(v>0 for v in counts.values())>1
+  e['measurement_mixed']=len(active)>1
   e['best_reps']=max((h['best_reps'] for h in e['history']),default=0)
   e['total_duration_seconds']=sum(h['duration_seconds'] for h in e['history'])
   e['total_distance_meters']=sum(h['distance_meters'] for h in e['history'])
   e['best_distance_meters']=max((h['distance_meters'] for h in e['history']),default=0)
   e['best_duration_seconds']=max((h['duration_seconds'] for h in e['history']),default=0)
-  e['pace_seconds_per_km']=round(e['total_duration_seconds']/(e['total_distance_meters']/1000),1) if e['total_duration_seconds']>0 and e['total_distance_meters']>0 else None
+  e['paired_duration_seconds']=sum(h['paired_duration_seconds'] for h in e['history']); e['paired_distance_meters']=sum(h['paired_distance_meters'] for h in e['history']); e['pace_seconds_per_km']=round(e['paired_duration_seconds']/(e['paired_distance_meters']/1000),1) if e['paired_duration_seconds']>0 and e['paired_distance_meters']>0 else None
  records=sorted([{'name':e['name'],'best_weight':round(e['best_weight'],1),'e1rm':round(e['e1rm'],1),'volume':round(e['volume'])} for e in exercises.values() if e['best_weight']>0],key=lambda x:x['e1rm'],reverse=True)[:10]
  monthly=[{'month':k,**v} for k,v in sorted(months.items())]; top_exercises=sorted([{'name':e['name'],'sessions':e['sessions'],'sets':e['sets'],'volume':round(e['volume'])} for e in exercises.values()],key=lambda x:x['sessions'],reverse=True)[:10]
  routine_totals={}
@@ -269,7 +266,7 @@ def stats(days=90,start_date=None,end_date=None):
    progression.append({'name':e['name'],'first':round(first_w,1),'latest':round(last_w,1),'change':change,'history':[{'date':h['date'],'weight':round(h['weight'],1)} for h in hist[-12:]]})
  progression=sorted(progression,key=lambda x:(len(next(e['history'] for e in exercises.values() if e['name']==x['name'])),abs(x['change'])),reverse=True)[:6]
  volume_coverage=round(weighted_sets/total_sets*100,1) if total_sets else None
- data_confidence={'recorded_workouts':len(selected),'working_sets':total_sets,'weighted_sets':weighted_sets,'reps_only_sets':reps_only_sets,'duration_sets':duration_sets,'distance_sets':distance_sets,'unmeasured_sets':unmeasured_sets,'volume_coverage_pct':volume_coverage,'excluded_records':len(stored_workouts)-len(workouts),'unmapped_exercises':len(next((m['exercise_names'] for m in muscles if m['muscle']=='Other'),[]))}
+ data_confidence={'recorded_workouts':len(selected),'working_sets':total_sets,'weighted_sets':weighted_sets,'reps_only_sets':reps_only_sets,'duration_sets':duration_sets,'distance_sets':distance_sets,'unmeasured_sets':unmeasured_sets,'volume_coverage_pct':volume_coverage,'kg_volume_set_pct':volume_coverage,'excluded_records':len(stored_workouts)-len(workouts),'unmapped_exercises':len(metadata_sources['unmapped']),'hevy_mapped_exercises':len(metadata_sources['hevy']),'fallback_mapped_exercises':len(metadata_sources['fallback'])}
  achievements=[]
  for goal,label in [(1,'First workout'),(10,'10 workouts'),(25,'25 workouts'),(50,'50 workouts'),(100,'100 workouts'),(250,'250 workouts')]: achievements.append({'label':label,'unlocked':len(workouts)>=goal,'progress':min(100,round(len(workouts)/goal*100))})
  for goal,label in [(10000,'10K kg lifted'),(50000,'50K kg lifted'),(100000,'100K kg lifted'),(500000,'500K kg lifted')]: achievements.append({'label':label,'unlocked':lifetime['volume']>=goal,'progress':min(100,round(lifetime['volume']/goal*100))})
