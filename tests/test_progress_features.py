@@ -25,3 +25,24 @@ class ProgressFeatures(unittest.TestCase):
   start=datetime.combine(day,datetime.min.time(),tzinfo=app.TZ).replace(hour=8)
   w={'id':ident,'title':'Training','start_time':start.isoformat(),'end_time':(start+timedelta(hours=1)).isoformat(),'exercises':[{'title':'Bench Press','sets':[{'type':'normal','weight_kg':20,'reps':10}]}]}
   with app.db() as db: db.execute('INSERT INTO workouts VALUES (?,?,?)',(ident,'api',json.dumps(w)))
+
+ def test_weekly_streak_counts_consecutive_completed_weeks(self):
+  app.settings({'workouts':2,'sets':60,'range':90})
+  today=datetime.now(app.TZ).date(); monday=today-timedelta(days=today.weekday())
+  for weeks_back in (1,2):
+   base=monday-timedelta(days=7*weeks_back)
+   self.workout_for_streak(f'w{weeks_back}a',base)
+   self.workout_for_streak(f'w{weeks_back}b',base+timedelta(days=1))
+  s=app.stats(90)
+  self.assertEqual(s['summary']['current_streak'],2)
+  self.assertEqual(s['summary']['best_streak'],2)
+  self.assertEqual(s['lifetime']['best_streak'],2)
+
+ def test_weekly_streak_breaks_after_missed_week(self):
+  app.settings({'workouts':2,'sets':60,'range':90})
+  today=datetime.now(app.TZ).date(); monday=today-timedelta(days=today.weekday())
+  base=monday-timedelta(days=14)
+  self.workout_for_streak('old-a',base); self.workout_for_streak('old-b',base+timedelta(days=1))
+  s=app.stats(90)
+  self.assertEqual(s['summary']['current_streak'],0)
+  self.assertEqual(s['summary']['best_streak'],1)
