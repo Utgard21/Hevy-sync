@@ -23,6 +23,10 @@ class Tests(unittest.TestCase):
   with app.db() as c:self.assertEqual(c.execute('SELECT source FROM workouts').fetchall(),[('csv',)])
  def test_bad_csv(self):
   with self.assertRaises(ValueError):app.parse_csv('bad,columns\n1,2')
+ def test_csv_optional_cardio_fields(self):
+  raw='title,start_time,end_time,exercise_title,set_type,weight_kg,reps,duration_seconds,distance_meters\nCardio,"02 Oct 2026, 10:00","02 Oct 2026, 10:30",Treadmill,normal,,,1800,3000\n'
+  s=app.parse_csv(raw)[0]['exercises'][0]['sets'][0]
+  self.assertEqual(s['duration_seconds'],1800); self.assertEqual(s['distance_meters'],3000)
  def test_timezone(self):
   self.assertEqual(app.stamp('2026-10-01T22:30:00Z').date().isoformat(),'2026-10-02')
 class MuscleMappingTests(unittest.TestCase):
