@@ -105,7 +105,7 @@ def template_muscles(t):
  rows=[(label(primary),1.0)]
  for m in secondary:
   lm=label(m)
-  if lm not in [x[0] for x in rows]: rows.append((lm,.35))
+  if lm not in [x[0] for x in rows]: rows.append((lm,1.0))
  return rows
 def muscle_targets(name):
  n=name.lower()
@@ -151,16 +151,18 @@ def stats(days=90,start_date=None,end_date=None):
    for s in e['sets']:
     if s.get('type')=='warmup': continue
     weight=s.get('weight_kg') or 0; reps=s.get('reps') or 0; dur=s.get('duration_seconds') or 0; dist=s.get('distance_meters') or 0; v=weight*reps
-    if weight>0 and reps>0: weighted_sets+=1; item['measurement_counts']['weighted']+=1
-    elif reps>0: reps_only_sets+=1; item['measurement_counts']['reps']+=1
-    elif dist>0: distance_sets+=1; item['measurement_counts']['distance']+=1
-    elif dur>0: duration_sets+=1; item['measurement_counts']['duration']+=1
-    else: unmeasured_sets+=1
+    measured=False
+    if weight>0 and reps>0: weighted_sets+=1; item['measurement_counts']['weighted']+=1; measured=True
+    elif reps>0: reps_only_sets+=1; item['measurement_counts']['reps']+=1; measured=True
+    if dist>0: distance_sets+=1; item['measurement_counts']['distance']+=1; measured=True
+    if dur>0: duration_sets+=1; item['measurement_counts']['duration']+=1; measured=True
+    if not measured: unmeasured_sets+=1
     total_sets+=1; total_reps+=reps; volume+=v; wvol+=v; dd['sets']+=1; dd['volume']+=v; b['sets']+=1; b['volume']+=v; mb['sets']+=1; mb['volume']+=v
     item['sets']+=1; item['reps']+=reps; item['volume']+=v
     prior_rep_weight=item.setdefault('_rep_best_by_weight',{}).get(str(weight),0) if weight>0 else 0
-    if reps>0:
-     for ms,mw,factor in target_rows: ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
+    if reps>0 or (dur>0 and dist<=0 and targets and targets!=[('Other',1.0)]):
+     for ms,mw,factor in target_rows:
+      ms['sets']+=factor; ms['reps']+=reps*factor; ms['volume']+=v*factor; mw['sets']+=factor; mw['volume']+=v*factor
     best=max(best,weight); ev+=v; session_reps+=reps; session_sets+=1; session_duration+=dur; session_distance+=dist; paired_duration+=dur if dur>0 and dist>0 else 0; paired_distance+=dist if dur>0 and dist>0 else 0; best_reps=max(best_reps,reps)
     if weight>0 and 1<=reps<=12: best_e1rm=max(best_e1rm,weight*(1+reps/30))
     if weight>0 and reps>0:
@@ -312,10 +314,10 @@ def same_weight_progress(rows):
    for ss in e['sets']:
     weight=ss.get('weight_kg') or 0; reps=ss.get('reps') or 0
     if ss.get('type')!='warmup' and weight>0 and reps>0: by_weight[weight]=max(by_weight.get(weight,0),reps)
-   for weight,reps in by_weight.items():grouped.setdefault((e['title'],weight),{})[w['id']]={'date':stamp(w['start_time']).date().isoformat(),'reps':reps}
+   for weight,reps in by_weight.items():grouped.setdefault((exercise_key(e['title']),weight),{'name':e['title'],'sessions':{}})['sessions'][w['id']]={'date':stamp(w['start_time']).date().isoformat(),'reps':reps}
  result=[]
- for (name,weight),sessions in grouped.items():
-  hist=list(sessions.values())
+ for (key,weight),group in grouped.items():
+  name=group['name']; sessions=group['sessions']; hist=list(sessions.values())
   if len(hist)>=2:
    first,last=hist[0],hist[-1];result.append({'name':name,'weight':weight,'first_reps':first['reps'],'latest_reps':last['reps'],'change':last['reps']-first['reps'],'first_date':first['date'],'latest_date':last['date'],'sessions':len(hist)})
  return sorted(result,key=lambda x:(x['latest_date'],x['change']),reverse=True)[:30]
