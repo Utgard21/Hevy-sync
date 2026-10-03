@@ -113,3 +113,27 @@ class DashboardTools(unittest.TestCase):
   with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'cardio-summary'))
   s=app.stats(3650); row=next(x for x in s['cardio'] if x['name']=='Treadmill')
   self.assertEqual(row['distance_meters'],3000); self.assertEqual(row['duration_seconds'],1800); self.assertEqual(row['pace_seconds_per_km'],600)
+
+ def test_hevy_secondary_muscles_are_not_fractional_guesses(self):
+  w=self.workout('secondary','2026-10-01'); w['exercises'][0]['exercise_template_id']='tpl-secondary'
+  with app.db() as db:
+   db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'secondary'))
+   db.execute('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',('tpl-secondary',json.dumps({'id':'tpl-secondary','primary_muscle_group':'chest','secondary_muscle_groups':['shoulders']})))
+  muscles={m['muscle']:m for m in app.stats(3650)['muscles']}
+  self.assertEqual(muscles['Chest']['sets'],1); self.assertEqual(muscles['Shoulders']['sets'],1)
+
+ def test_timed_resistance_counts_muscle_without_inventing_reps(self):
+  w=self.workout('plank','2026-10-01'); w['exercises']=[{'title':'Plank','sets':[{'type':'normal','duration_seconds':60}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'plank'))
+  s=app.stats(3650); core=next(m for m in s['muscles'] if m['muscle']=='Core')
+  self.assertEqual(core['sets'],1); self.assertEqual(core['reps'],0); self.assertEqual(core['volume'],0)
+
+ def test_distance_and_duration_are_both_recorded_in_confidence(self):
+  w=self.workout('cardio-both','2026-10-01'); w['exercises']=[{'title':'Treadmill','sets':[{'type':'normal','distance_meters':1000,'duration_seconds':600}]}]
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'cardio-both'))
+  d=app.stats(3650)['data_confidence']; self.assertEqual(d['distance_sets'],1); self.assertEqual(d['duration_sets'],1)
+
+ def test_same_weight_normalizes_hyphenated_exercise_names(self):
+  a=self.workout('norm-a','2026-09-01',10); b=self.workout('norm-b','2026-09-02',12); b['exercises'][0]['title']='Bench-Press'
+  with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(b),'norm-b'))
+  p=app.same_weight_progress([a,b]); self.assertEqual(len(p),1); self.assertEqual(p[0]['change'],2)
