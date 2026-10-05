@@ -341,7 +341,7 @@ class Handler(BaseHTTPRequestHandler):
   if u.path!='/health' and not self.authenticated(): return self.auth_required()
   if u.path=='/health': return self.reply(200,{'ok':True})
   if u.path=='/api/stats':
-   try: days=int(parse_qs(u.query).get('days',['90'])[0]); assert days in (30,90,180,365,3650); q=parse_qs(u.query); return self.reply(200,stats(days,q.get('start',[None])[0],q.get('end',[None])[0]))
+   try: days=int(parse_qs(u.query).get('days',['90'])[0]); assert days in (30,90,180,365,3650,36500); q=parse_qs(u.query); return self.reply(200,stats(days,q.get('start',[None])[0],q.get('end',[None])[0]))
    except (ValueError,AssertionError): return self.reply(400,{'error':'Invalid date range'})
   if u.path=='/api/settings': return self.reply(200,settings())
   if u.path=='/api/workout':
