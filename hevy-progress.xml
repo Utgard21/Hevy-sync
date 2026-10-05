@@ -16,8 +16,8 @@
   <Category>Tools:System</Category>
   <ExtraSearchTerms>hevy fitness workout gym training analytics progress exercise</ExtraSearchTerms>
   <Requires>Optional Hevy API key for automatic sync. CSV import can be used without an API key.</Requires>
-  <Changes>Initial Community Applications release.</Changes>
-  <Date>2026-10-02</Date>
+  <Changes>Added full-history monthly reports, month-over-month comparisons, richer muscle analytics and data-consistency improvements.</Changes>
+  <Date>2026-10-05</Date>
   <MinVer>6.12.0</MinVer>
   <License>MIT</License>
   <Config Name="WebUI" Target="8080" Default="8080" Mode="tcp" Description="HTTP port for the Hevy Progress dashboard." Type="Port" Display="always" Required="true" Mask="false"/>
