@@ -124,3 +124,39 @@ dialog{width:min(850px,calc(100% - 24px));max-height:85vh;overflow:auto;border:1
 #reportMonth{min-width:190px}.monthlyreport{margin-top:18px}.monthlyreport>h3{font-size:26px;margin:0 0 16px;color:#e8f1ff}.reportstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.reportstats .mini{padding:16px;border:1px solid #35475f;border-radius:12px;background:#17263a}.reportstats small{display:block;color:#9fb0c6;font-size:10px;letter-spacing:1px;text-transform:uppercase}.reportstats strong{display:block;margin-top:7px;font-size:22px;color:#edf4ff}.reportsummary{margin:18px 0;color:#b8c7d9}.reportworkouts{display:grid;gap:8px}.reportworkouts .session{margin:0}.reportworkouts .session>span{color:#9fd9d1;font-size:12px;text-align:right}@media(max-width:700px){.tabs{overflow-x:auto;justify-content:flex-start}.tab{flex:0 0 auto}.reportstats{grid-template-columns:repeat(2,1fr)}.reportworkouts .session{align-items:flex-start;gap:10px}.reportworkouts .session>span{max-width:45%}}
 
 .reportdelta{display:block;margin-top:5px;color:#8fa5c0;font-size:11px}.reporthighlights{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.reporthighlights>h4,.reportmuscles>h4{grid-column:1/-1;margin:0 0 2px}.reporthighlights .mini{padding:14px;border:1px solid #35475f;border-radius:12px;background:#17263a}.reporthighlights small{display:block;color:#9fb0c6}.reporthighlights strong{display:block;margin-top:6px}.reportmuscles{margin:22px 0}.reportmusclerow{display:grid;grid-template-columns:130px 1fr 45px;gap:10px;align-items:center;margin:8px 0}.reportmusclerow>span{color:#c6d3e4}.reportmusclerow .track{height:8px;border-radius:99px;overflow:hidden}.reportmusclerow .fill{display:block;height:100%;border-radius:99px}.reportmusclerow>strong{text-align:right;color:#dfe9f7}@media(max-width:700px){.reporthighlights{grid-template-columns:repeat(2,1fr)}.reportmusclerow{grid-template-columns:95px 1fr 38px;font-size:12px}}
+
+
+/* UI polish pass — presentation only */
+:root{--ui-radius:16px;--ui-radius-sm:11px;--ui-shadow:0 14px 36px rgba(0,0,0,.22);--ui-shadow-hover:0 18px 44px rgba(0,0,0,.3);--ui-focus:#9fc9ff;--ui-surface:rgba(24,35,50,.94);--ui-surface-soft:rgba(20,31,45,.78)}
+body{background-attachment:fixed}main{padding-top:30px}
+header{padding:10px 4px 24px;border-bottom:1px solid rgba(133,163,199,.12);margin-bottom:16px}
+header>div:first-child{max-width:780px}header>div:first-child>p{max-width:720px;line-height:1.55}
+h1{font-size:clamp(36px,4vw,52px);letter-spacing:-1.8px}h2{letter-spacing:-.2px}h3,h4{letter-spacing:-.15px}
+article,.card,.mini,.insight,.progresscard,.goalitem,.calendarDetail{border-radius:var(--ui-radius)}
+article{box-shadow:var(--ui-shadow);transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
+article:hover{border-color:#435a74;box-shadow:var(--ui-shadow-hover)}
+.card{box-shadow:0 10px 28px rgba(0,0,0,.2);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);border-color:#4c6682;box-shadow:0 15px 32px rgba(0,0,0,.27)}
+.card strong,.mini strong,.reportstats strong,.journeyitem strong{font-variant-numeric:tabular-nums}
+.cards{gap:13px}.card{padding:21px}.card p{line-height:1.4}
+.tabs{top:10px;padding:5px;gap:4px;border-radius:16px;background:rgba(12,20,29,.88);box-shadow:0 12px 34px rgba(0,0,0,.34)}
+.tab{position:relative;padding:10px 17px;border-radius:11px;transition:background .18s ease,color .18s ease,transform .18s ease}.tab:hover{background:#24364a;color:#edf5ff}.tab.active{box-shadow:0 5px 18px rgba(120,184,225,.18)}.tab.active:after{content:"";position:absolute;left:24%;right:24%;bottom:3px;height:2px;border-radius:99px;background:#eef8ff88}
+button,.button,select,input{transition:border-color .18s ease,background .18s ease,box-shadow .18s ease,transform .12s ease}button:hover,.button:hover{filter:brightness(1.05)}button:active,.button:active{transform:translateY(1px)}button:focus-visible,.button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--ui-focus);outline-offset:2px}
+.controls{align-items:center}.controls select{min-width:145px}.controls button,.controls .button{box-shadow:0 5px 14px rgba(0,0,0,.16)}
+.tabpage>article>.row:first-child,.tabpage>.grid>article>.row:first-child{padding-bottom:4px}
+article>h2:first-child,.row h2{font-size:19px}.row h2{margin-bottom:5px}
+.statsgrid{gap:10px}.mini{background:linear-gradient(145deg,#172539,#142033);border-color:#354a63}.mini small{font-size:10px;letter-spacing:1.15px;text-transform:uppercase}.mini strong{line-height:1.15}
+.session{transition:background .15s ease,padding-left .15s ease}.session:hover{background:rgba(130,174,220,.055);padding-left:6px}
+table{font-variant-numeric:tabular-nums}thead th{position:sticky;top:0;background:#172334;z-index:1}tbody tr{transition:background .15s ease}
+.bars{border-bottom:1px solid #31445b;padding-bottom:1px}.bar{transition:filter .15s ease,opacity .15s ease,transform .15s ease}.barcol:hover .bar{filter:brightness(1.15);transform:scaleX(1.06)}.barcol:hover small{color:#edf4ff}
+#status{min-height:20px}.tabpage{animation:uiPageIn .22s ease-out}@keyframes uiPageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.goalpanel,.journey,.insights{position:relative;overflow:hidden}.goalpanel:after,.journey:after,.insights:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-80px;top:-100px;background:radial-gradient(circle,rgba(136,186,255,.09),transparent 68%);pointer-events:none}
+.calendar{gap:9px}.calday{transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.calday:hover{transform:translateY(-2px);border-color:#6887aa}.calday.trained:hover{box-shadow:0 8px 20px rgba(0,0,0,.24)}
+.monthlyreport>h3{font-size:30px;letter-spacing:-.7px;padding-bottom:13px;border-bottom:1px solid #35485f}.reportstats{gap:10px}.reportstats .mini,.reporthighlights .mini{background:linear-gradient(145deg,#192a3e,#152235);border-color:#3a5069}.reportstats .mini{position:relative;overflow:hidden}.reportstats .mini:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#88baff}.reportstats .mini:nth-child(2):before{background:#90d4aa}.reportstats .mini:nth-child(3):before{background:#e9bc7b}.reportstats .mini:nth-child(4):before{background:#c3b1ff}.reporthighlights>h4,.reportmuscles>h4{font-size:16px;color:#edf4ff}.reportworkouts .session{border:1px solid #33475f;border-radius:11px;padding:13px 14px;background:#162336}.reportworkouts .session:hover{padding-left:18px;border-color:#4c6683}
+.musclegrid>article:first-child{background:radial-gradient(circle at 50% 42%,rgba(94,168,204,.08),transparent 43%),linear-gradient(145deg,#172432,#111b26)}.bodytabs{margin-bottom:3px}.bodytab{min-width:72px}.heatlegend{margin-top:4px}.musclerow{border-radius:8px;padding:5px 7px;margin-left:-7px;margin-right:-7px;transition:background .16s ease,outline .16s ease}.musclerow:hover{background:#88baff0c}
+.progresscard{box-shadow:0 7px 18px rgba(0,0,0,.13);transition:transform .18s ease,border-color .18s ease}.progresscard:hover{transform:translateY(-2px);border-color:#526d8c}
+dialog{border-radius:20px}
+footer{margin-top:32px;padding-bottom:12px}
+@media(max-width:800px){main{padding-top:18px}header{padding-bottom:18px}.tabs{top:6px;margin-bottom:20px}.card:hover,article:hover,.progresscard:hover{transform:none}.monthlyreport>h3{font-size:25px}}
+@media(max-width:600px){.tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{padding:9px 13px}.cards{gap:10px}.card{padding:17px}.reportstats,.reporthighlights{gap:8px}.reportstats .mini,.reporthighlights .mini{padding:13px}.session{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.tabpage{animation:none}.card:hover,article:hover,.progresscard:hover,.calday:hover{transform:none}}
