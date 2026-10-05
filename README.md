@@ -9,6 +9,8 @@ A colorful, privacy-focused, self-hosted training analytics dashboard for [Hevy]
 
 > **Unofficial project.** Hevy Progress is independent and is not affiliated with, endorsed by, or maintained by Hevy.
 
+> **Built for my own training workflow.** I originally built and configured Hevy Progress around my own needs, workout data, training habits, and self-hosted setup. I am sharing it because it may be useful to others, but your Hevy data and preferences may be different. Some analytics, exercise/muscle mappings, defaults, goals, UI choices, or deployment settings may need to be adjusted for your own use. Please review the results rather than assuming every default is a perfect fit for your training.
+
 ## What it does
 
 Hevy Progress turns your workout history into a private dashboard with:
