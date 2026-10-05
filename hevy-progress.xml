@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
   <Icon>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/icons/hevy-progress-icon-small.png</Icon>
-  <Overview>Colorful, self-hosted analytics dashboard for Hevy workout data. Track consistency, strength progression, training volume, muscle balance, recovery, personal records and your full workout calendar. Sync through the Hevy API or import CSV exports. Unofficial project; not affiliated with or endorsed by Hevy.</Overview>
+  <Overview>Colorful, self-hosted analytics dashboard for Hevy workout data. Track consistency, strength progression, training volume, muscle balance, recovery, personal records, monthly reports and your full workout calendar. Sync through the Hevy API or import CSV exports. Built primarily for my own training workflow and shared for others who may find it useful; your data, training style and preferences may differ, so some mappings, goals, analytics, defaults or settings may need adjustment. Unofficial project; not affiliated with or endorsed by Hevy.</Overview>
   <Project>https://github.com/Utgard21/Hevy-sync</Project>
   <Support>https://github.com/Utgard21/Hevy-sync/issues</Support>
   <TemplateURL>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/hevy-progress.xml</TemplateURL>
@@ -16,7 +16,7 @@
   <Category>Tools:System</Category>
   <ExtraSearchTerms>hevy fitness workout gym training analytics progress exercise</ExtraSearchTerms>
   <Requires>Optional Hevy API key for automatic sync. CSV import can be used without an API key.</Requires>
-  <Changes>Added full-history monthly reports, month-over-month comparisons, richer muscle analytics and data-consistency improvements.</Changes>
+  <Changes>Added full-history monthly reports, month-over-month comparisons, richer muscle analytics and data-consistency improvements. Added documentation clarifying that the project is tailored to the maintainer's training workflow and may require customization for other users.</Changes>
   <Date>2026-10-05</Date>
   <MinVer>6.12.0</MinVer>
   <License>MIT</License>
