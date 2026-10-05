@@ -13,11 +13,11 @@ A colorful, privacy-focused, self-hosted training analytics dashboard for [Hevy]
 
 Hevy Progress turns your workout history into a private dashboard with:
 
-- Overview, Progress, Analytics, Muscles, and Calendar views
+- Overview, Progress, Analytics, Muscles, Calendar, and full-history Reports views
 - Workout frequency, volume, sets, reps, duration, streaks, and lifetime totals
 - Exercise progression, rep PRs, estimated 1RM, PR timeline, and mini trend cards
 - Interactive front/back muscle heatmap, primary/secondary muscle contribution analytics, recovery view, and weekly muscle sets
-- Full-history training calendar
+- Full-history training calendar and separated monthly reports with month-over-month comparisons, highlights, muscle distribution, and workout history
 - Automatic Hevy API sync or CSV import
 - Persistent SQLite storage and JSON backup
 - Optional HTTP Basic Authentication
@@ -41,6 +41,19 @@ Screenshots for the public listing should be captured from this demo dataset rat
 4. Add your Hevy API key if you want automatic API synchronization, or import a Hevy CSV export from the dashboard.
 
 The native Unraid template is also included in this repository as `hevy-progress.xml`.
+
+### Unraid “Last Update” metadata
+
+Hevy Progress runs from GHCR (`ghcr.io/utgard21/hevy-sync:latest`). The current Community Applications client calculates the sidebar **Last Update** value for GHCR images by looking up a same-name repository on Docker Hub. If that Docker Hub mirror does not exist, Unraid can show **Unknown** even though the GHCR image and the Community Applications template are current.
+
+This repository keeps GHCR as the canonical runtime registry. The GitHub Actions workflow also supports an optional Docker Hub metadata mirror. To enable it:
+
+1. Create a public Docker Hub repository named `hevy-sync` under the same Docker Hub username/namespace you want CA to query (for this project, `utgard21/hevy-sync`).
+2. Add GitHub Actions repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`.
+3. Push to `main` or manually run the Docker workflow. It will continue publishing GHCR normally and will additionally publish `<DOCKERHUB_USERNAME>/hevy-sync:latest`.
+4. Refresh Community Applications after its metadata cache updates.
+
+The XML `<Date>` field is still maintained for Community Applications metadata/changelog purposes, but it does **not** drive this sidebar value for a `:latest` Docker image.
 
 ### Container image
 
