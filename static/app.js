@@ -56,7 +56,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelect
 
 document.querySelectorAll('.bodytab').forEach(b=>b.onclick=()=>{bodyView=b.dataset.view;document.querySelectorAll('.bodytab').forEach(x=>x.classList.toggle('active',x===b));if(data)renderMuscles()});
 
-document.addEventListener('mouseover',e=>{const m=e.target?.dataset?.muscle;if(!m)return;document.querySelectorAll('[data-muscle="'+m+'"]').forEach(x=>x.classList.add('musclefocus'))});document.addEventListener('mouseout',e=>{const m=e.target?.dataset?.muscle;if(!m)return;document.querySelectorAll('[data-muscle="'+m+'"]').forEach(x=>x.classList.remove('musclefocus'))});
+let focusedMuscle=null;function setMuscleFocus(m){if(focusedMuscle===m)return;if(focusedMuscle)document.querySelectorAll('[data-muscle="'+CSS.escape(focusedMuscle)+'"]').forEach(x=>x.classList.remove('musclefocus'));focusedMuscle=m||null;if(focusedMuscle)document.querySelectorAll('[data-muscle="'+CSS.escape(focusedMuscle)+'"]').forEach(x=>x.classList.add('musclefocus'))}document.addEventListener('pointerover',e=>{const el=e.target?.closest?.('[data-muscle]');if(!el)return;setMuscleFocus(el.dataset.muscle)});document.addEventListener('pointerout',e=>{const el=e.target?.closest?.('[data-muscle]');if(!el)return;const next=e.relatedTarget?.closest?.('[data-muscle]');if(next?.dataset?.muscle===el.dataset.muscle)return;if(focusedMuscle===el.dataset.muscle)setMuscleFocus(next?.dataset?.muscle||null)});
 
 let savedSettings={workouts:4,sets:60,range:90};
 function goalTargets(){return savedSettings}
