@@ -1,3 +1,4 @@
+import re
 import os,json,sqlite3,threading,time,csv,io,hashlib,math,base64,hmac
 from datetime import datetime,timedelta,timezone
 from zoneinfo import ZoneInfo
@@ -17,7 +18,7 @@ class ClosingConnection(sqlite3.Connection):
   try: return super().__exit__(exc_type,exc,tb)
   finally: self.close()
 def db():
- c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS exercise_templates (id TEXT PRIMARY KEY,payload TEXT NOT NULL)'); return c
+ c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS exercise_templates (id TEXT PRIMARY KEY,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS measurements (day TEXT NOT NULL,metric TEXT NOT NULL,value REAL NOT NULL,PRIMARY KEY(day,metric))'); c.execute('CREATE TABLE IF NOT EXISTS routine_colors (title TEXT PRIMARY KEY,color TEXT NOT NULL)'); return c
 def stamp(s):
  d=datetime.fromisoformat(s.replace('Z','+00:00')); return d.replace(tzinfo=TZ) if d.tzinfo is None else d.astimezone(TZ)
 def validate(w):
@@ -343,6 +344,12 @@ class Handler(BaseHTTPRequestHandler):
   if u.path=='/api/stats':
    try: days=int(parse_qs(u.query).get('days',['90'])[0]); assert days in (30,90,180,365,3650,36500); q=parse_qs(u.query); return self.reply(200,stats(days,q.get('start',[None])[0],q.get('end',[None])[0]))
    except (ValueError,AssertionError): return self.reply(400,{'error':'Invalid date range'})
+  if u.path=='/api/measurements':
+   with db() as c: rows=c.execute('SELECT day,metric,value FROM measurements ORDER BY day').fetchall()
+   return self.reply(200,[{'day':a,'metric':b,'value':v} for a,b,v in rows])
+  if u.path=='/api/routine-colors':
+   with db() as c: rows=c.execute('SELECT title,color FROM routine_colors ORDER BY title').fetchall()
+   return self.reply(200,dict(rows))
   if u.path=='/api/settings': return self.reply(200,settings())
   if u.path=='/api/workout':
    wid=parse_qs(u.query).get('id',[''])[0]
@@ -358,6 +365,25 @@ class Handler(BaseHTTPRequestHandler):
   if not self.authenticated(): return self.auth_required()
   # Require a custom header so third-party pages cannot submit imports/syncs.
   if self.headers.get('X-Hevy-Dashboard')!='1': return self.reply(403,{'error':'Missing request header'})
+  if self.path in ('/api/measurements','/api/routine-colors'):
+   try:
+    length=int(self.headers.get('Content-Length','0'))
+    if not 0<length<=4096: return self.reply(400,{'error':'Invalid request size'})
+    obj=json.loads(self.rfile.read(length))
+    if self.path=='/api/measurements':
+     day=obj['day']; metric=obj['metric']; value=obj.get('value')
+     datetime.strptime(day,'%Y-%m-%d')
+     if metric not in ('weight','waist','chest','hips','biceps','thigh','neck','shoulders','calf'): raise ValueError('Unknown measurement')
+     if value is not None and (type(value) not in (int,float) or not math.isfinite(value) or not 0<value<=500): raise ValueError('Invalid measurement')
+     with db() as c:
+      if value is None: c.execute('DELETE FROM measurements WHERE day=? AND metric=?',(day,metric))
+      else: c.execute('INSERT OR REPLACE INTO measurements VALUES (?,?,?)',(day,metric,value))
+    else:
+     title=obj['title']; color=obj['color']
+     if not isinstance(title,str) or not 0<len(title)<=200 or not isinstance(color,str) or not re.fullmatch(r'#[0-9a-fA-F]{6}',color): raise ValueError('Invalid color')
+     with db() as c: c.execute('INSERT OR REPLACE INTO routine_colors VALUES (?,?)',(title,color))
+    return self.reply(200,{'ok':True})
+   except (ValueError,KeyError,TypeError): return self.reply(400,{'error':'Invalid input'})
   if self.path=='/api/settings':
    try:
     length=int(self.headers.get('Content-Length','0'))
