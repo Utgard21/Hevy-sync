@@ -305,3 +305,17 @@ footer{margin-top:32px;padding-bottom:12px}
  #reportsTab .reportworkouts .session{background:#fff!important;border:1px solid #d5e0eb!important;color:#162436!important;box-shadow:none!important;break-inside:avoid!important;margin:6px 0!important;padding:9px!important}
  #reportsTab .reportworkouts .session *{color:#162436!important}
 }
+
+/* QoL: favorites, exercise comparisons, workout context */
+.exercise-picker #favoriteExercise{font-size:23px;min-width:40px;color:#ffd78a}
+.exercise-picker .favorite-filter{display:inline-flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap}
+.exercise-picker .favorite-filter input{accent-color:#e7bc65}
+.exercise-compare{display:grid;gap:9px;margin:12px 0 18px}
+.exercise-compare>label{color:#b7cadc;font-size:12px}
+.exercise-compare>select{max-width:440px}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.compare-grid .mini{min-width:0;background:linear-gradient(145deg,#1b3045,#162437);border:1px solid #395573}
+.compare-grid .mini small{overflow-wrap:anywhere}
+.workout-previous{margin:12px 0 20px;padding:15px;border-radius:13px;border:1px solid #46617c;background:#1a3046}
+.workout-previous h3{margin:0 0 8px}
+@media(max-width:560px){.compare-grid{grid-template-columns:1fr}.exercise-picker .favorite-filter{width:auto}}
