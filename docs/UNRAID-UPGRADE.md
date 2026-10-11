@@ -1,15 +1,15 @@
-# Upgrade Hevy Progress on Unraid
+# Upgrade Hevy My Progress on Unraid
 
 ## Before upgrading
 
-1. Open **Docker** in Unraid and note your current Hevy Progress image, port, and environment settings.
+1. Open **Docker** in Unraid and note your current Hevy My Progress image, port, and environment settings.
 2. Verify that container path `/data` maps to persistent storage (the template default is `/mnt/user/appdata/hevy-progress`).
 3. Stop the container briefly and back up the entire appdata directory, including `hevy.sqlite`. Resume only after the copy finishes. Keep backups private.
 4. Preserve `HEVY_API_KEY`, `TZ`, `SYNC_INTERVAL`, and any dashboard username/password. No new settings are needed for body-measurement syncing.
 
 ## Update
 
-1. In **Docker**, select **Check for Updates** if needed and use **Update** on Hevy Progress.
+1. In **Docker**, select **Check for Updates** if needed and use **Update** on Hevy My Progress.
 2. Keep the same `/data` mapping. **Do not delete the appdata directory** when replacing or recreating the container.
 3. Wait for the image pull and container start to finish.
 4. Open the dashboard and confirm existing workout history and manual measurements remain present.
