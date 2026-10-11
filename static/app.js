@@ -23,7 +23,7 @@ const MUSCLE_PAIR_GROUPS={
 function musclePairTotals(muscles){
  const totals={};for(const name of Object.keys(MUSCLE_PAIR_GROUPS))totals[name]=0;
  for(const entry of muscles||[]){
-  const label=String(entry.muscle||'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\\s+/g,' ');
+  const label=String(entry.muscle||'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
   const value=Number(entry.sets);
   if(!Number.isFinite(value)||value<0)continue;
   for(const [group,aliases] of Object.entries(MUSCLE_PAIR_GROUPS)){
