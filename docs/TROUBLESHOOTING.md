@@ -27,10 +27,6 @@ This is the most frequent **hour bucket** of workout start times in the selected
 
 Check the selected date range, timezone, warm-up classification, and missing weight/reps. Weighted training volume is calculated from eligible recorded working sets; it is not estimated from missing inputs. Estimated 1RM and muscle allocation are separately labeled.
 
-## What happened to Global Search and Collapse buttons?
-
-Both were intentionally removed. The Progress exercise search, recent workout filters, and date presets remain available.
-
 ## Does a Docker update erase workouts?
 
 Not if your `/data` mount stays persistent and unchanged. Always back up the SQLite database before upgrading. See [Unraid upgrade guide](UNRAID-UPGRADE.md).
