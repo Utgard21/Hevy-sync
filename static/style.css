@@ -272,3 +272,36 @@ footer{margin-top:32px;padding-bottom:12px}
 #status.sync-info{color:#9ed5ff}
 #status.error{color:#ff9d9d}
 @media(max-width:600px){#calendarTab .calroutine{font-size:9px;letter-spacing:0;padding:3px 2px}#progressTab .row:has(.exercise-picker){align-items:stretch;flex-direction:column}.exercise-picker{width:100%}.exercise-picker input[type=search],.exercise-picker select{min-width:0;max-width:none;flex:1 1 100%;width:100%}}
+
+
+/* Exercise sorting and printable monthly reports */
+.exercise-sort{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:10px 0 16px;color:#b9cbe0;font-size:13px}
+.exercise-sort select{max-width:100%;min-height:38px}
+.report-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.report-actions button{white-space:nowrap;min-height:38px}
+.report-actions button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:600px){.exercise-sort{justify-content:flex-start;flex-wrap:wrap}.report-actions{width:100%}.report-actions select{flex:1 1 130px}.report-actions button{flex:1 1 auto}}
+@page{size:A4 portrait;margin:15mm}
+@media print{
+ :root{color-scheme:light}
+ html,body{background:#fff!important;color:#162436!important}
+ body{margin:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ main{max-width:none!important;margin:0!important;padding:0!important}
+ main>nav,main>header,main>form,main>#status,main>footer,main>.tabpage:not(#reportsTab),#reportsTab>article>.row,.report-actions,dialog{display:none!important}
+ #reportsTab,#reportsTab.tabpage{display:block!important;animation:none!important}
+ #reportsTab>article{display:block!important;border:0!important;background:#fff!important;box-shadow:none!important;padding:0!important;margin:0!important}
+ #reportsTab .monthlyreport{display:block!important;color:#162436!important}
+ #reportsTab .monthlyreport>h3{font-size:27px!important;color:#132339!important;margin:0 0 9px!important}
+ #reportsTab .reportintro{color:#4b6077!important;margin:0 0 18px!important}
+ #reportsTab .reportstats,#reportsTab .reporthighlights{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin:12px 0!important}
+ #reportsTab .reportstats .mini,#reportsTab .reporthighlights .mini{break-inside:avoid!important;background:#f2f6fb!important;border:1px solid #cbd7e4!important;box-shadow:none!important;color:#162436!important;padding:12px!important;min-height:0!important}
+ #reportsTab .mini small,#reportsTab .mini span,#reportsTab .mini strong,#reportsTab .reportdelta{color:#162436!important}
+ #reportsTab .reporthighlights>h4{grid-column:1/-1;color:#162436!important;margin:10px 0 0!important}
+ #reportsTab .reportmuscles{background:#fff!important;border:1px solid #cbd7e4!important;color:#162436!important;padding:12px!important;break-inside:avoid-page}
+ #reportsTab .reportmuscles h4,#reportsTab .reportmusclerow,#reportsTab .reportmusclerow span,#reportsTab .reportmusclerow strong{color:#162436!important}
+ #reportsTab .reportmusclerow .track{background:#e5edf5!important}
+ #reportsTab .reportmusclerow .fill{background:#537fa9!important}
+ #reportsTab .reportsummary,#reportsTab .reportsummary p{color:#162436!important}
+ #reportsTab .reportworkouts .session{background:#fff!important;border:1px solid #d5e0eb!important;color:#162436!important;box-shadow:none!important;break-inside:avoid!important;margin:6px 0!important;padding:9px!important}
+ #reportsTab .reportworkouts .session *{color:#162436!important}
+}
