@@ -243,12 +243,20 @@ def stats(days=90,start_date=None,end_date=None):
  if records: insights.append({'icon':'🏆','title':'Top estimated strength','text':f"{records[0]['name']} leads at an estimated 1RM of {records[0]['e1rm']} kg."})
  if selected: insights.append({'icon':'⏱','title':'Session length','text':f"Average workout is {round(duration/60/len(selected))} minutes; longest is {round(longest/60)} minutes."})
  if load['ratio']: insights.append({'icon':'🌊','title':'Recent load','text':f"Your last 7 days are {load['ratio']}× the weekly average of the last 28 days."})
+ # Only genuine cardio exercises belong here; duration-only resistance is not cardio.
  cardio=[]
  for e in exercises.values():
-  if e.get('total_duration_seconds',0)>0 or e.get('total_distance_meters',0)>0:
-   last=max((h['date'] for h in e['history'] if h.get('duration_seconds',0)>0 or h.get('distance_meters',0)>0),default=None)
-   cardio.append({'name':e['name'],'sessions':e['sessions'],'duration_seconds':round(e.get('total_duration_seconds',0)),'distance_meters':round(e.get('total_distance_meters',0),1),'pace_seconds_per_km':e.get('pace_seconds_per_km'),'last_recorded':last})
- cardio.sort(key=lambda x:(x['duration_seconds'],x['distance_meters']),reverse=True)
+  name=e['name']; targets=template_muscles(e.get('hevy_template'))
+  if targets is None: targets=muscle_targets(name)
+  is_cardio=not targets and any(word in name.lower() for word in NON_MUSCLE_EXERCISES)
+  if not is_cardio: continue
+  sessions=[]
+  for h in e['history']:
+   if h.get('duration_seconds',0)<=0 and h.get('distance_meters',0)<=0: continue
+   paired_time=h.get('paired_duration_seconds',0); paired_distance=h.get('paired_distance_meters',0)
+   sessions.append({'date':h['date'],'duration_seconds':round(h.get('duration_seconds',0)),'distance_meters':round(h.get('distance_meters',0),1),'pace_seconds_per_km':round(paired_time/(paired_distance/1000),1) if paired_time>0 and paired_distance>0 else None})
+  if sessions: cardio.append({'name':name,'sessions':len(sessions),'runs':sorted(sessions,key=lambda h:h['date'],reverse=True)})
+ cardio.sort(key=lambda e:e['name'].lower())
  muscles=[]
  for ms in muscle_stats.values():
   last=datetime.fromisoformat(ms['last_trained']).date() if ms['last_trained'] else None; muscles.append({'muscle':ms['muscle'],'sets':round(ms['sets'],1),'reps':round(ms['reps']),'volume':round(ms['volume']),'sessions':len(ms['sessions']),'last_trained':ms['last_trained'],'days_since':(today-last).days if last else None,'exercises':len(ms['exercises']),'exercise_names':sorted(ms['exercise_names'])})
