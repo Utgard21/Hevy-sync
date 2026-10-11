@@ -18,7 +18,7 @@ class ClosingConnection(sqlite3.Connection):
   try: return super().__exit__(exc_type,exc,tb)
   finally: self.close()
 def db():
- c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS exercise_templates (id TEXT PRIMARY KEY,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS measurements (day TEXT NOT NULL,metric TEXT NOT NULL,value REAL NOT NULL,PRIMARY KEY(day,metric))'); c.execute('CREATE TABLE IF NOT EXISTS routine_colors (title TEXT PRIMARY KEY,color TEXT NOT NULL)'); return c
+ c=sqlite3.connect(DATA/'hevy.sqlite',factory=ClosingConnection); c.execute('CREATE TABLE IF NOT EXISTS workouts (id TEXT PRIMARY KEY,source TEXT NOT NULL,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS exercise_templates (id TEXT PRIMARY KEY,payload TEXT NOT NULL)'); c.execute('CREATE TABLE IF NOT EXISTS measurements (day TEXT NOT NULL,metric TEXT NOT NULL,value REAL NOT NULL,PRIMARY KEY(day,metric))'); c.execute('CREATE TABLE IF NOT EXISTS hevy_measurements (day TEXT NOT NULL,metric TEXT NOT NULL,value REAL NOT NULL,PRIMARY KEY(day,metric))'); c.execute('CREATE TABLE IF NOT EXISTS routine_colors (title TEXT PRIMARY KEY,color TEXT NOT NULL)'); return c
 def stamp(s):
  d=datetime.fromisoformat(s.replace('Z','+00:00')); return d.replace(tzinfo=TZ) if d.tzinfo is None else d.astimezone(TZ)
 def validate(w):
@@ -46,17 +46,37 @@ def fetch(path,field,size):
   if page>=payload['page_count']: return result
   page+=1
   if page>10000: raise ValueError('Unexpected API pagination')
+
+# API field names are explicit: never infer a measurement from workout data.
+HEVY_MEASURE_FIELDS={'weight_kg':'weight','waist':'waist','chest_cm':'chest','hips':'hips','neck_cm':'neck','shoulder_cm':'shoulders'}
+# Side-specific fields are kept separate; no invented average of left and right.
+HEVY_MEASURE_FIELDS.update({'left_bicep_cm':'left_biceps','right_bicep_cm':'right_biceps','left_thigh':'left_thigh','right_thigh':'right_thigh','left_calf':'left_calf','right_calf':'right_calf','left_forearm_cm':'left_forearm','right_forearm_cm':'right_forearm','lean_mass_kg':'lean_mass','fat_percent':'body_fat','abdomen':'abdomen'})
+def hevy_measurement_rows(records):
+ rows=[]
+ for record in records:
+  if not isinstance(record,dict): raise ValueError('Invalid Hevy measurement')
+  day=record.get('date')
+  if not isinstance(day,str) or datetime.strptime(day,'%Y-%m-%d').strftime('%Y-%m-%d')!=day: raise ValueError('Invalid Hevy measurement date')
+  for field,metric in HEVY_MEASURE_FIELDS.items():
+   value=record.get(field)
+   if value is None: continue
+   if type(value) not in (int,float) or not math.isfinite(value) or value<0 or value>10000: raise ValueError('Invalid Hevy measurement value')
+   rows.append((day,metric,float(value)))
+ return rows
+
 def sync():
  if not KEY or not LOCK.acquire(False): return
  STATUS.update(syncing=True,error=None,last_attempt=datetime.now(timezone.utc).isoformat())
  try:
   workouts=fetch('workouts','workouts',10)
   templates=fetch('exercise_templates','exercise_templates',100)
+  # Fetch and validate every page before replacing the imported snapshot.
+  measurement_rows=hevy_measurement_rows(fetch('body_measurements','body_measurements',10))
   for w in workouts: validate(w)
   # Replace the API snapshot only after every page succeeds. CSV history is retained.
   with db() as c:
    c.execute("DELETE FROM workouts WHERE source='api'")
-   c.executemany('INSERT OR REPLACE INTO workouts VALUES (?,?,?)',[(w['id'],'api',json.dumps(w)) for w in workouts]); c.execute('DELETE FROM exercise_templates'); c.executemany('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',[(t['id'],json.dumps(t)) for t in templates if t.get('id')])
+   c.executemany('INSERT OR REPLACE INTO workouts VALUES (?,?,?)',[(w['id'],'api',json.dumps(w)) for w in workouts]); c.execute('DELETE FROM hevy_measurements'); c.executemany('INSERT OR REPLACE INTO hevy_measurements VALUES (?,?,?)',measurement_rows); c.execute('DELETE FROM exercise_templates'); c.executemany('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',[(t['id'],json.dumps(t)) for t in templates if t.get('id')])
   STATUS['last_sync']=datetime.now(timezone.utc).isoformat()
  except HTTPError as e: STATUS['error']=f'Hevy returned HTTP {e.code}. Check your API key and Pro access.'
  except Exception: STATUS['error']='Sync failed. Check connectivity and try again; cached workouts are preserved.'
@@ -353,8 +373,13 @@ class Handler(BaseHTTPRequestHandler):
    try: days=int(parse_qs(u.query).get('days',['90'])[0]); assert days in (30,90,180,365,3650,36500); q=parse_qs(u.query); return self.reply(200,stats(days,q.get('start',[None])[0],q.get('end',[None])[0]))
    except (ValueError,AssertionError): return self.reply(400,{'error':'Invalid date range'})
   if u.path=='/api/measurements':
-   with db() as c: rows=c.execute('SELECT day,metric,value FROM measurements ORDER BY day').fetchall()
-   return self.reply(200,[{'day':a,'metric':b,'value':v} for a,b,v in rows])
+   with db() as c:
+    imported=c.execute('SELECT day,metric,value FROM hevy_measurements ORDER BY day').fetchall()
+    manual=c.execute('SELECT day,metric,value FROM measurements ORDER BY day').fetchall()
+   # Manual entries override imported values for the same date and metric; neither source is deleted.
+   combined={(a,b):{'day':a,'metric':b,'value':v,'source':'Hevy'} for a,b,v in imported}
+   combined.update({(a,b):{'day':a,'metric':b,'value':v,'source':'Manual'} for a,b,v in manual})
+   return self.reply(200,sorted(combined.values(),key=lambda x:(x['day'],x['metric'])))
   if u.path=='/api/routine-colors':
    with db() as c: rows=c.execute('SELECT title,color FROM routine_colors ORDER BY title').fetchall()
    return self.reply(200,dict(rows))
