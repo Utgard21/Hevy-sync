@@ -12,7 +12,7 @@ TZ=ZoneInfo(os.getenv('TZ','Europe/Sofia'))
 KEY=os.getenv('HEVY_API_KEY','')
 AUTH_USER=os.getenv('DASHBOARD_USERNAME','').strip(); AUTH_PASS=os.getenv('DASHBOARD_PASSWORD','')
 INTERVAL=max(300,int(os.getenv('SYNC_INTERVAL','3600')))
-LOCK=threading.Lock(); STATUS={'syncing':False,'last_sync':None,'error':None,'api_configured':bool(KEY)}
+LOCK=threading.Lock(); STATUS={'syncing':False,'last_sync':None,'last_attempt':None,'error':None,'api_configured':bool(KEY)}
 class ClosingConnection(sqlite3.Connection):
  def __exit__(self,exc_type,exc,tb):
   try: return super().__exit__(exc_type,exc,tb)
@@ -48,7 +48,7 @@ def fetch(path,field,size):
   if page>10000: raise ValueError('Unexpected API pagination')
 def sync():
  if not KEY or not LOCK.acquire(False): return
- STATUS.update(syncing=True,error=None)
+ STATUS.update(syncing=True,error=None,last_attempt=datetime.now(timezone.utc).isoformat())
  try:
   workouts=fetch('workouts','workouts',10)
   templates=fetch('exercise_templates','exercise_templates',100)
@@ -174,7 +174,7 @@ def stats(days=90,start_date=None,end_date=None):
    old_weight=item['best_weight']; old_e1rm=item['e1rm']; item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm); item['history'].append({'date':day.isoformat(),'weight':best,'e1rm':round(best_e1rm,1),'volume':ev,'reps':session_reps,'best_reps':best_reps,'sets':session_sets,'duration_seconds':session_duration,'distance_meters':session_distance,'paired_duration_seconds':paired_duration,'paired_distance_meters':paired_distance});
    if best>old_weight and old_weight>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'Weight PR','value':round(best,1),'unit':'kg'})
    if best_e1rm>old_e1rm and old_e1rm>0: prs.append({'date':day.isoformat(),'exercise':name,'kind':'e1RM PR','value':round(best_e1rm,1),'unit':'kg'})
-  recent.append({'id':w['id'],'title':w['title'],'date':start.isoformat(),'exercises':len(w['exercises']),'volume':wvol,'minutes':round(max(0,(stamp(w['end_time'])-start).total_seconds())/60)})
+  recent.append({'id':w['id'],'title':w['title'],'date':start.isoformat(),'exercises':len(w['exercises']),'exercise_names':[e.get('title','') for e in w['exercises']],'volume':wvol,'minutes':round(max(0,(stamp(w['end_time'])-start).total_seconds())/60)})
  first=cutoff-timedelta(days=cutoff.weekday()); cursor=first
  while cursor<=report_end:
   weekly.setdefault(cursor.isoformat(),{'workouts':0,'sets':0,'volume':0,'minutes':0}); cursor+=timedelta(days=7)
