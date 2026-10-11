@@ -16,11 +16,6 @@ This file tracks user-visible changes. The project currently identifies its stab
 - Imported measurements are read-only in the dashboard; manual measurements take display priority for the same date and metric, while both underlying sources are retained.
 - Updated README, Unraid Community Applications template, usage notes, and deployment documentation.
 
-### Removed
-- Global search toolbar (exercise search and workout history filters remain).
-- Dashboard Collapse/Expand section buttons.
-- The experimental hourly workout-start distribution chart.
-
 ### Compatibility
 - No additional environment variables, ports, or mounts are required.
 - Existing persistent SQLite data and manual measurements must be retained across updates.
