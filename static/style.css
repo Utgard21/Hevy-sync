@@ -258,3 +258,17 @@ footer{margin-top:32px;padding-bottom:12px}
 #reportsTab .reportworkouts .session:hover{background:#1d3047;border-color:#6181a2}
 @media(max-width:700px){#musclesTab .bodymap{padding:4px}#musclesTab .heatlegend{gap:5px;padding:8px 5px}#measureSummary .measuretrend{min-height:160px;padding:14px}#reportsTab .reportmetric{min-height:112px;padding:14px}#reportsTab .reportmuscles{padding:12px}}
 @media(prefers-reduced-motion:reduce){#musclesTab .body-svg [data-muscle],#reportsTab .reportworkouts .session{transition:none}}
+
+
+/* Small usability enhancements — October 2026 */
+#calendarTab .calroutine{font-size:10px;font-weight:800;letter-spacing:.25px;text-align:center;line-height:1.3}
+#calendarTab .calroutinechips{gap:3px}
+.exercise-picker{display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:100%}
+.exercise-picker input[type=search]{min-width:155px;max-width:260px;flex:1 1 170px;min-height:39px;border:1px solid #405b78;border-radius:9px;background:#15263a;color:#edf6ff;padding:8px 11px;outline-offset:2px}
+.exercise-picker input[type=search]:focus-visible{outline:2px solid #9bcaff}
+.exercise-picker select{min-width:165px;max-width:100%;flex:1 1 200px}
+#overview .card[title]{cursor:help}
+#overview .card[title] .cardhead small:after{content:" ⓘ";font-size:12px;color:#b4c8df;letter-spacing:0}
+#status.sync-info{color:#9ed5ff}
+#status.error{color:#ff9d9d}
+@media(max-width:600px){#calendarTab .calroutine{font-size:9px;letter-spacing:0;padding:3px 2px}#progressTab .row:has(.exercise-picker){align-items:stretch;flex-direction:column}.exercise-picker{width:100%}.exercise-picker input[type=search],.exercise-picker select{min-width:0;max-width:none;flex:1 1 100%;width:100%}}
