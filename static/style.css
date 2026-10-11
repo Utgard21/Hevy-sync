@@ -319,3 +319,13 @@ footer{margin-top:32px;padding-bottom:12px}
 .workout-previous{margin:12px 0 20px;padding:15px;border-radius:13px;border:1px solid #46617c;background:#1a3046}
 .workout-previous h3{margin:0 0 8px}
 @media(max-width:560px){.compare-grid{grid-template-columns:1fr}.exercise-picker .favorite-filter{width:auto}}
+
+/* Additional training insights and installable-app presentation */
+#weeklyReview,#yearlyConsistency,#musclePairs,#recordExplorer,#syncDiagnostics,#overloadTracker{margin-top:14px}
+#weeklyReview .mini,#yearlyConsistency .mini,#musclePairs .mini,#recordExplorer .mini,#syncDiagnostics .mini,#overloadTracker .mini{min-width:0}
+#overloadTracker h3,#overloadTracker>p,#yearlyConsistency>.note{grid-column:1/-1}
+#heatmap{display:grid;grid-template-rows:repeat(7,12px);grid-auto-columns:minmax(7px,1fr);grid-auto-flow:column;gap:3px;overflow-x:auto;padding:6px 0}
+#heatmap .day{min-width:7px;height:12px;border-radius:3px}
+.new-workout-notice{padding:12px 16px;margin:8px 0 16px;background:#163d43;border:1px solid #5cbb9f;border-radius:12px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.new-workout-notice[hidden]{display:none}
+@media(max-width:700px){#heatmap{grid-auto-columns:9px;overflow-x:auto;scrollbar-width:thin}#weeklyReview,#recordExplorer{grid-template-columns:repeat(2,minmax(0,1fr))}}
