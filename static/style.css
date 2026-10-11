@@ -351,3 +351,104 @@ footer{margin-top:32px;padding-bottom:12px}
 .metric-source{display:inline-block;font-size:10px;font-weight:500;color:#a5d9c9;line-height:1.3;max-width:100px}
 @media(max-width:580px){.history-filters>input,.history-filters>select{min-width:100%;max-width:none}.quick-dates button{flex:1 0 auto}.metric-source{font-size:9px}}
 @media print{.quick-dates,.sync-timestamps,.pin-help,.pin-stat,.history-filters{display:none!important}}
+
+
+/* Visual refresh — 2026-10-11. Presentation only; all analytics and controls stay intact. */
+:root{
+ --surface-raised:#17233a;--surface-deep:#0e1729;--border-soft:#334660;
+ --text-muted:#b3c1d6;--shadow-soft:0 12px 32px rgba(0,0,0,.25);
+ --cyan:#69e7f9;--green:#75edb4;--purple:#bba0ff;--pink:#ff89bd;
+ --orange:#ffbc75;--blue:#82b4ff
+}
+body{
+ background:radial-gradient(ellipse at 9% 0%,rgba(56,102,160,.19),transparent 40%),
+ radial-gradient(ellipse at 92% 8%,rgba(123,68,157,.15),transparent 36%),#090e19;
+ color:#f3f6ff
+}
+main{max-width:1480px}
+header{padding:8px 0 12px}
+header p{line-height:1.65}
+h1{letter-spacing:-.045em;line-height:1.1}
+h2{letter-spacing:-.015em;line-height:1.35}
+article,.card{
+ border:1px solid rgba(121,152,196,.23);
+ background:linear-gradient(145deg,rgba(26,39,63,.96),rgba(15,24,41,.97));
+ box-shadow:var(--shadow-soft),inset 0 1px 0 rgba(255,255,255,.035);
+ border-radius:18px
+}
+article{padding:clamp(17px,2vw,25px)}
+.card{padding:clamp(17px,1.9vw,24px);min-width:0;isolation:isolate}
+.card:before{width:3px;border-radius:3px}
+.card:after{content:"";position:absolute;inset:0;pointer-events:none;
+ background:radial-gradient(circle at 100% 0%,var(--accent,var(--cyan)),transparent 62%);
+ opacity:.065;z-index:-1}
+.card strong{font-size:clamp(25px,2.35vw,35px);line-height:1.18;letter-spacing:-.035em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.card small{font-size:11px;letter-spacing:.045em;line-height:1.5}
+.cards{gap:14px}
+.mini{min-width:0;border-color:rgba(122,155,201,.23);border-radius:14px;
+ background:linear-gradient(145deg,#16253c,#111c30);box-shadow:inset 0 1px rgba(255,255,255,.025)}
+.mini strong{font-variant-numeric:tabular-nums;letter-spacing:-.025em;overflow-wrap:anywhere}
+.tabs{max-width:100%;border-color:#405271;background:rgba(12,20,35,.92);border-radius:16px;
+ box-shadow:0 12px 35px rgba(0,0,0,.32);scrollbar-width:thin}
+.tab{border-radius:11px;font-weight:650;white-space:nowrap;transition:background-color .18s ease,color .18s ease,box-shadow .18s ease}
+.tab:not(.active):hover{background:rgba(112,154,210,.14);color:#eff7ff}
+.tab.active{box-shadow:0 4px 18px rgba(95,191,235,.19)}
+button,.button,select,input,textarea{transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+button:hover,.button:hover{filter:brightness(1.06)}
+button:focus-visible,.button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,
+.tab:focus-visible,.calday:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.quick-dates{gap:8px}
+.quick-dates button{border-radius:999px}
+.sync-timestamps{color:var(--text-muted)}
+.pin-help,.metric-source{line-height:1.5}
+#cards .card.is-pinned{border-color:rgba(117,237,180,.65);box-shadow:0 0 0 1px rgba(117,237,180,.12),var(--shadow-soft)}
+.pin-stat{border-color:#5a7795}
+.bar,.day,.calday{transition:filter .2s ease,box-shadow .2s ease,transform .2s ease}
+.bar:hover,.day:hover{filter:brightness(1.23)}
+.calday{border-radius:12px;border-color:#354761}
+.calday.trained{border-color:#53cfa8}
+.calday:hover{border-color:#9cd7ef}
+#heatmap .day{border-radius:4px}
+table{font-variant-numeric:tabular-nums}
+th{letter-spacing:.035em}
+tbody tr{transition:background-color .16s ease}
+@media(hover:hover) and (pointer:fine){
+ .card:hover,article:hover{border-color:rgba(127,179,226,.39);box-shadow:0 16px 38px rgba(0,0,0,.29),inset 0 1px rgba(255,255,255,.045)}
+ .card:hover{transform:translateY(-2px)}
+ .card{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+}
+@media(max-width:900px){
+ main{padding:24px 18px}
+ header{align-items:flex-start}
+ .tabs{margin-bottom:20px}
+ .cards{gap:11px}
+ .grid{gap:14px}
+}
+@media(max-width:600px){
+ main{padding:16px 12px calc(35px + env(safe-area-inset-bottom,0px))}
+ h1{font-size:clamp(31px,9vw,42px)}
+ .tabs{justify-content:flex-start;overflow-x:auto;scroll-snap-type:x proximity;padding:5px;gap:4px;position:sticky;top:5px}
+ .tab{flex:0 0 auto;scroll-snap-align:start;padding:10px 13px;min-height:42px}
+ .controls{gap:8px}
+ .controls>button,.controls>.button{min-height:42px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .card{padding:15px}
+ .card strong{font-size:clamp(22px,6vw,29px)}
+ .card small{font-size:10px}
+ .statsgrid{gap:9px}
+ .mini{padding:12px}
+ article{padding:16px;margin-bottom:14px}
+ .calendar{gap:4px}
+ .calday{min-height:48px;border-radius:8px;padding:4px}
+ .calempty{min-height:48px}
+ .history-filters{gap:9px}
+ .quick-dates button{min-height:40px}
+}
+@media(max-width:360px){.cards{grid-template-columns:1fr}.statsgrid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){
+ .card,.tab,.bar,.day,.calday,button,.button,select,input,textarea,tbody tr{animation:none!important;transition:none!important;transform:none!important}
+ .tabpage{animation:none!important}
+}
+@media print{
+ .card,article,.mini{box-shadow:none!important;transform:none!important}
+}
