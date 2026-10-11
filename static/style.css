@@ -522,3 +522,28 @@ body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::aft
 @keyframes hevy-skeleton{to{background-position-x:-200%}}
 @media(max-width:900px){body.initial-loading #cards:empty{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::after,body.initial-loading #weeklyReview:empty::before,body.initial-loading #weeklyReview:empty::after{animation:none}}
+
+/* Screenshot refinements: compact explanation disclosure and training-insight icons. */
+.why{margin-top:14px;min-width:0}
+.why>summary{display:list-item;list-style-position:inside;cursor:pointer;
+ font-size:clamp(14px,3.5vw,17px);font-weight:650;line-height:1.4;
+ padding:10px 12px;border-radius:10px;color:#e5efff;
+ background:rgba(41,61,89,.38);overflow-wrap:anywhere}
+.why>summary::marker{font-size:.8em}
+.why>summary:hover{background:rgba(57,80,112,.55)}
+.why>summary:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.why[open]>p{font-size:13px;line-height:1.6;margin:12px 4px 2px;overflow-wrap:anywhere}
+.insight{gap:9px;padding:13px;min-width:0;align-items:flex-start}
+.insight>span{font-size:clamp(16px,2vw,20px);line-height:1.25;flex:0 0 21px;text-align:center}
+.insight>div{min-width:0;flex:1}
+.insight strong{font-size:clamp(13px,1.5vw,16px);line-height:1.35;overflow-wrap:anywhere}
+.insight p{font-size:clamp(12px,1.4vw,14px);line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:700px){
+ .insightgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .insight{gap:7px;padding:12px}
+ .insight>span{font-size:17px;flex-basis:19px}
+ .insight strong{font-size:13px}
+ .insight p{font-size:12px;line-height:1.45}
+ .why>summary{font-size:15px;padding:9px 10px}
+}
+@media(max-width:390px){.insightgrid{grid-template-columns:minmax(0,1fr)}.insight strong{font-size:14px}.insight p{font-size:13px}}
