@@ -22,6 +22,14 @@ Missing weight, repetitions, distance, or duration should not be invented merely
 
 Because exercise libraries and training styles vary, inspect fallback mappings if a muscle chart looks wrong for your exercises. A mapping that makes sense for the maintainer's program may not accurately represent a differently named or performed exercise.
 
+## Body measurements and syncing
+
+The Measurements tab supports Hevy-imported body measurements and manual entries. The normal Hevy sync retrieves available measurement history using the existing `HEVY_API_KEY`; no additional Unraid or Docker settings are required. Which measurement fields appear depends on the Hevy API response for your account.
+
+Manual and imported measurements are stored separately in SQLite under `/data`. Manual entries override imported values only in the combined display for the same date and metric; the original imported values are retained. Imported measurements are read-only in the dashboard: edit them in Hevy and synchronize again. You can continue entering measurements manually without an API key.
+
+No body measurements are inferred from workouts. Protect your database and backups as sensitive personal data. If an import fails, check sync status and API access before assuming measurements are unavailable.
+
 ## Contributions and forks
 
 If your needs differ, feel free to fork the project and change its defaults or analytics. General improvements that preserve data integrity and are useful beyond one person's training setup are welcome as pull requests.
