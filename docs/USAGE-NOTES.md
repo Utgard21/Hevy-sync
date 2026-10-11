@@ -1,6 +1,6 @@
-# Hevy Progress — Usage Notes
+# Hevy My Progress — Usage Notes
 
-Hevy Progress started as a personal project built around the maintainer's own training workflow, Hevy data, preferences, and Unraid/Docker environment. It is published as an open-source project because it may also be useful to other Hevy users, but it is not intended to imply that one configuration or interpretation fits everyone.
+Hevy My Progress started as a personal project built around the maintainer's own training workflow, Hevy data, preferences, and Unraid/Docker environment. It is published as an open-source project because it may also be useful to other Hevy users, but it is not intended to imply that one configuration or interpretation fits everyone.
 
 ## Before relying on the dashboard
 
@@ -16,7 +16,7 @@ Areas that may reasonably need customization include:
 
 ## Data and analytics
 
-Hevy Progress tries to preserve a clear distinction between recorded and derived information. Recorded values come from Hevy/API or CSV data. Exact totals are calculated from those recorded values. Estimated or inferred analytics, such as estimated 1RM and muscle attribution, should be interpreted as analytical aids rather than additional recorded Hevy data.
+Hevy My Progress tries to preserve a clear distinction between recorded and derived information. Recorded values come from Hevy/API or CSV data. Exact totals are calculated from those recorded values. Estimated or inferred analytics, such as estimated 1RM and muscle attribution, should be interpreted as analytical aids rather than additional recorded Hevy data.
 
 Missing weight, repetitions, distance, or duration should not be invented merely to complete a statistic. Exercise-template metadata from Hevy is preferred for muscle classification when available, with local mappings used as a fallback.
 
