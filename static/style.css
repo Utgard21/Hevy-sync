@@ -452,3 +452,26 @@ tbody tr{transition:background-color .16s ease}
 @media print{
  .card,article,.mini{box-shadow:none!important;transform:none!important}
 }
+
+/* Mobile fixes: no visible tab scroll indicator; long analytics descriptions stay inside cards. */
+.tabs{scrollbar-width:none;-ms-overflow-style:none}
+.tabs::-webkit-scrollbar{display:none;width:0;height:0}
+.statsgrid,.insightgrid,.reportstats,.reporthighlights{min-width:0}
+.statsgrid>.mini,.insightgrid>.mini,.reportstats>.mini,.reporthighlights>.mini{min-width:0;max-width:100%}
+.mini p,.mini span,.mini small,.mini strong,.card p,.card small{
+ overflow-wrap:anywhere;word-break:normal;white-space:normal;max-width:100%
+}
+.mini p{line-height:1.5}
+@media(max-width:600px){
+ .tabs{scrollbar-width:none;-ms-overflow-style:none}
+ .tabs::-webkit-scrollbar{display:none;width:0;height:0}
+ .statsgrid,.insightgrid,.reportstats,.reporthighlights{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .statsgrid>.mini,.insightgrid>.mini,.reportstats>.mini,.reporthighlights>.mini{padding:12px;min-width:0}
+ .mini p{font-size:clamp(11px,2.9vw,13px);line-height:1.45;overflow-wrap:anywhere}
+ .mini small{font-size:clamp(10px,2.7vw,12px);letter-spacing:.03em}
+}
+@media(max-width:390px){
+ .statsgrid,.insightgrid,.reportstats,.reporthighlights{grid-template-columns:minmax(0,1fr)}
+ .mini p{font-size:13px}
+}
+@media print{.tabs{scrollbar-width:none}}
