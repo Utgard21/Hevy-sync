@@ -2,7 +2,7 @@
 
 ## Source
 
-Hevy Progress fetches paginated body-measurement records from the Hevy Public API using the existing `HEVY_API_KEY` during its normal sync. The current importer requests `/v1/body_measurements` and expects a `body_measurements` collection with a `date` field in `YYYY-MM-DD` format. The exact fields exposed by Hevy may depend on the account and API response; this document describes **what the current code recognizes**, not a guarantee that Hevy returns every field.
+Hevy My Progress fetches paginated body-measurement records from the Hevy Public API using the existing `HEVY_API_KEY` during its normal sync. The current importer requests `/v1/body_measurements` and expects a `body_measurements` collection with a `date` field in `YYYY-MM-DD` format. The exact fields exposed by Hevy may depend on the account and API response; this document describes **what the current code recognizes**, not a guarantee that Hevy returns every field.
 
 ## Current importer mapping
 
