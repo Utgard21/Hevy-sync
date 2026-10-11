@@ -32,7 +32,7 @@ No body measurements are inferred from workouts. Protect your database and backu
 
 ## Navigation and data provenance
 
-The current dashboard includes workout-history filters, quick date presets, pinned Overview statistics, and separate timestamps for last sync attempt and last successful sync. Pinned statistics are browser-local preferences. Global Search and Collapse/Expand section buttons were removed; exercise search remains available in Progress.
+The current dashboard includes workout-history filters, quick date presets, pinned Overview statistics, and separate timestamps for last sync attempt and last successful sync. Pinned statistics are browser-local preferences. Exercise search remains available in Progress.
 
 Labels distinguish recorded inputs, calculated totals, and estimated or inferred analytics. The favorite start time represents the most common start-hour bucket, not an exact average start time. See [Troubleshooting](TROUBLESHOOTING.md) and [Measurement API notes](MEASUREMENTS-API.md).
 
