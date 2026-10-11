@@ -589,3 +589,17 @@ body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::aft
  .statsgrid,.insightgrid{grid-template-columns:minmax(0,1fr)}
  .statsgrid>.mini p,.insight p{font-size:13px}
 }
+
+/* Compact muscle balance comparisons with one shared explanatory note. */
+#musclePairs{align-items:stretch;gap:10px}
+#musclePairs .muscle-pair-card{min-height:0!important;height:auto;padding:13px 14px;gap:3px;justify-content:flex-start}
+#musclePairs .muscle-pair-card small{font-size:11px;letter-spacing:.5px;line-height:1.35;overflow-wrap:anywhere}
+#musclePairs .muscle-pair-card strong{font-size:clamp(22px,3.8vw,29px);line-height:1.2;margin:5px 0 0;white-space:nowrap;font-variant-numeric:tabular-nums}
+#musclePairs .muscle-pair-unit{font-size:11px;line-height:1.35;color:#aebfd4}
+#musclePairs .muscle-pair-note{grid-column:1/-1;margin:2px 0 0;font-size:12px;line-height:1.5;color:#9eb1c9}
+@media(max-width:700px){
+ #musclePairs .muscle-pair-card{padding:12px 10px}
+ #musclePairs .muscle-pair-card strong{font-size:clamp(19px,5vw,25px);white-space:normal;overflow-wrap:anywhere}
+ #musclePairs .muscle-pair-card small{font-size:10px}
+ #musclePairs .muscle-pair-note{font-size:11px}
+}
