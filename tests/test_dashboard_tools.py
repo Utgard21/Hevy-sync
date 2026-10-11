@@ -108,6 +108,18 @@ class DashboardTools(unittest.TestCase):
   s=app.stats(3650)
   self.assertFalse(any(m['sets']>0 for m in s['muscles']))
 
+ def test_treadmill_with_hevy_muscle_metadata_stays_cardio(self):
+  w=self.workout('cardio-metadata','2026-10-01')
+  w['exercises']=[{'title':'Treadmill','exercise_template_id':'cardio-metadata-tpl','sets':[{'type':'normal','distance_meters':1200,'duration_seconds':720}]}]
+  with app.db() as db:
+   db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'cardio-metadata'))
+   db.execute('INSERT OR REPLACE INTO exercise_templates VALUES (?,?)',('cardio-metadata-tpl',json.dumps({'id':'cardio-metadata-tpl','primary_muscle_group':'quads'})))
+  s=app.stats(3650)
+  row=next(x for x in s['cardio'] if x['name']=='Treadmill')
+  self.assertEqual(row['sessions'],1)
+  self.assertEqual(row['runs'][0]['distance_meters'],1200)
+  self.assertFalse(any(m['muscle']=='Quads' and m['sets']>0 for m in s['muscles']))
+
  def test_cardio_summary_exposes_recorded_measurements(self):
   w=self.workout('cardio-summary','2026-10-01'); w['exercises']=[{'title':'Treadmill','sets':[{'type':'normal','distance_meters':3000,'duration_seconds':1800}]}]
   with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'cardio-summary'))
