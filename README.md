@@ -23,6 +23,7 @@ Hevy Progress turns your workout history into a private dashboard with:
 - Interactive front/back muscle heatmap, primary/secondary muscle contribution analytics, recovery view, and weekly muscle sets
 - Full-history training calendar and separated monthly reports with month-over-month comparisons, highlights, muscle distribution, and workout history
 - Automatic Hevy API sync or CSV import
+- Automatic import of available Hevy body measurements, plus manual measurements, history and trends
 - Persistent SQLite storage and JSON backup
 - Optional HTTP Basic Authentication
 - Multi-architecture Docker images for `linux/amd64` and `linux/arm64`
@@ -104,6 +105,14 @@ The repository is safe to keep public **only if secrets and personal workout dat
 - If the dashboard is accessible outside your trusted LAN, put it behind HTTPS. Basic Auth does not encrypt credentials by itself.
 - Prefer a reverse proxy or private VPN for remote access rather than exposing port 8080 directly to the Internet.
 - If a secret was ever committed, removing it from the latest file is **not enough**: rotate the secret and remove it from Git history.
+
+## Body measurements
+
+The **Measurements** tab automatically imports available body measurements during normal Hevy API synchronization. After updating your Unraid container, click **Sync Hevy** or wait for the next scheduled sync. The existing `HEVY_API_KEY` is used; no new environment variables or volume mappings are required. The imported fields depend on your Hevy account and API response.
+
+You can still add measurements manually without an API key. Imported and manual measurements are stored separately in the persistent SQLite database in `/data`. For the same date and metric, the manual entry takes precedence in the dashboard without deleting the imported entry. Imported records are read-only in the dashboard: update them in Hevy and sync again. No body measurements are estimated from workouts.
+
+If the import fails, inspect the sync status and verify API access. Preserve `/data` when updating or reinstalling the container; backups contain sensitive personal measurements.
 
 ## Data handling
 
