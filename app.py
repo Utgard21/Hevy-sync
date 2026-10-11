@@ -255,7 +255,7 @@ def stats(days=90,start_date=None,end_date=None):
    if h.get('duration_seconds',0)<=0 and h.get('distance_meters',0)<=0: continue
    paired_time=h.get('paired_duration_seconds',0); paired_distance=h.get('paired_distance_meters',0)
    sessions.append({'date':h['date'],'duration_seconds':round(h.get('duration_seconds',0)),'distance_meters':round(h.get('distance_meters',0),1),'pace_seconds_per_km':round(paired_time/(paired_distance/1000),1) if paired_time>0 and paired_distance>0 else None})
-  if sessions: cardio.append({'name':name,'sessions':len(sessions),'runs':sorted(sessions,key=lambda h:h['date'],reverse=True)})
+  if sessions: cardio.append({'name':name,'sessions':len(sessions),'runs':sorted(sessions,key=lambda h:h['date'],reverse=True),'duration_seconds':round(e.get('total_duration_seconds',0)),'distance_meters':round(e.get('total_distance_meters',0),1),'pace_seconds_per_km':e.get('pace_seconds_per_km'),'last_recorded':max(h['date'] for h in sessions)})
  cardio.sort(key=lambda e:e['name'].lower())
  muscles=[]
  for ms in muscle_stats.values():
