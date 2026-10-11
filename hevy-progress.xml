@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
   <Icon>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/icons/hevy-progress-icon-small.png</Icon>
-  <Overview>Colorful, self-hosted analytics dashboard for Hevy workout data. Track consistency, strength progression, training volume, muscle balance, recovery, personal records, monthly reports and your full workout calendar. Sync workouts and available body measurements through the Hevy API, or import workout CSV exports. The Measurements tab also supports manual entries and history charts. Built primarily for my own training workflow and shared for others who may find it useful; your data, training style and preferences may differ, so some mappings, goals, analytics, defaults or settings may need adjustment. Unofficial project; not affiliated with or endorsed by Hevy.</Overview>
+  <Overview>Colorful, self-hosted analytics dashboard for Hevy workout data. Track consistency, strength progression, training volume, muscle balance, recovery, personal records, monthly reports and your full workout calendar. Sync workouts and available body measurements through the Hevy API, or import workout CSV exports. The Measurements tab also supports manual entries and history charts. Includes workout history filters, quick date presets, pinned overview metrics, and clear sync status. Built primarily for my own training workflow and shared for others who may find it useful; your data, training style and preferences may differ, so some mappings, goals, analytics, defaults or settings may need adjustment. Unofficial project; not affiliated with or endorsed by Hevy.</Overview>
   <Project>https://github.com/Utgard21/Hevy-sync</Project>
   <Support>https://github.com/Utgard21/Hevy-sync/issues</Support>
   <TemplateURL>https://raw.githubusercontent.com/Utgard21/Hevy-sync/main/hevy-progress.xml</TemplateURL>
@@ -16,7 +16,7 @@
   <Category>Tools:System</Category>
   <ExtraSearchTerms>hevy fitness workout gym training analytics progress exercise</ExtraSearchTerms>
   <Requires>Optional Hevy API key for automatic workout and body-measurement sync. Workout CSV import and manual body measurements work without an API key.</Requires>
-  <Changes>Added automatic Hevy body-measurement synchronization with history, source labels, and preservation of manual entries. No new environment variables or volume mappings are required.</Changes>
+  <Changes>Automatic Hevy body-measurement import, history and source labels; workout filters, quick date presets, pinned metrics and clearer sync timestamps. Removed global search and collapse buttons. Updated README, FAQ, API notes and Unraid upgrade documentation. No new container settings required.</Changes>
   <Date>2026-10-11</Date>
   <MinVer>6.12.0</MinVer>
   <License>MIT</License>
