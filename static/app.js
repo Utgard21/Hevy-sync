@@ -102,3 +102,13 @@ $('aboutButton').onclick=()=>$('aboutDialog').showModal();$('closeAbout').onclic
 
 
 if('serviceWorker' in navigator && window.isSecureContext){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
+
+// Floating back-to-top button; only visible after scrolling down.
+const backToTop=$('backToTop');
+if(backToTop){
+ const updateBackToTop=()=>{backToTop.hidden=window.scrollY<450};
+ window.addEventListener('scroll',updateBackToTop,{passive:true});
+ window.addEventListener('resize',updateBackToTop,{passive:true});
+ backToTop.addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
+ updateBackToTop();
+}
