@@ -248,7 +248,7 @@ def stats(days=90,start_date=None,end_date=None):
  for e in exercises.values():
   name=e['name']; targets=template_muscles(e.get('hevy_template'))
   if targets is None: targets=muscle_targets(name)
-  is_cardio=not targets and any(word in name.lower() for word in NON_MUSCLE_EXERCISES)
+  is_cardio=any(word in name.lower() for word in NON_MUSCLE_EXERCISES)
   if not is_cardio: continue
   sessions=[]
   for h in e['history']:
