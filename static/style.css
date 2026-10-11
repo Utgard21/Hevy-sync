@@ -176,3 +176,46 @@ footer{margin-top:32px;padding-bottom:12px}
 
 /* Individual recorded cardio sessions */
 .cardiorun{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;padding:12px 0;border-top:1px solid #35475f;color:#c5d8ed}.cardiorun:first-of-type{margin-top:12px}.cardiorun strong{min-width:105px;color:#e4efff}.cardiorun span{white-space:nowrap}@media(max-width:600px){.cardiorun{gap:7px 12px}.cardiorun strong{width:100%}}
+
+
+/* October 2026 visual refresh — presentation only, no analytics changes */
+#overview .cards{gap:15px;align-items:stretch}
+#overview .card{position:relative;isolation:isolate;overflow:hidden;min-height:144px;padding:20px 21px;background:linear-gradient(148deg,#1b2c43 0%,#142033 78%);border:1px solid #344a63;border-top:3px solid var(--card-accent,#7eb5ff);box-shadow:0 9px 26px #02081435;transition:border-color .18s ease,box-shadow .18s ease}
+#overview .card:nth-child(5n+1){--card-accent:#7fb6ff}
+#overview .card:nth-child(5n+2){--card-accent:#76dfb5}
+#overview .card:nth-child(5n+3){--card-accent:#bba1ff}
+#overview .card:nth-child(5n+4){--card-accent:#69d6d4}
+#overview .card:nth-child(5n){--card-accent:#f2bd7d}
+#overview .card:before{content:"";position:absolute;z-index:-1;right:-55px;top:-68px;width:175px;height:175px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--card-accent) 16%,transparent),transparent 70%);pointer-events:none}
+#overview .card:hover{border-color:color-mix(in srgb,var(--card-accent) 65%,#344a63);box-shadow:0 12px 30px #02081448}
+#overview .cardhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+#overview .cardhead small{line-height:1.45;letter-spacing:1.3px}
+#overview .cardicon{display:grid;place-items:center;flex:none;width:35px;height:35px;border:1px solid color-mix(in srgb,var(--card-accent) 34%,transparent);border-radius:11px;background:color-mix(in srgb,var(--card-accent) 12%,#142033);font-size:18px}
+#overview .card strong{display:block;color:var(--card-accent);font-size:clamp(23px,2vw,31px);line-height:1.18;letter-spacing:-.6px}
+#overview .card p{margin:10px 0 0;line-height:1.45}
+#overview .weekpulse{gap:12px}
+#overview .pulseitem{background:linear-gradient(150deg,#1b2d43,#152238);border-color:#3a506b}
+#calendarTab .routinelegend{gap:8px 10px}
+#calendarTab .routineitem{background:linear-gradient(135deg,#1d3046,#17263a);border-color:#3a526e}
+#calendarTab .routinedot{box-shadow:0 0 0 2px #ffffff13}
+#calendarTab .calday{position:relative;border-radius:10px;transition:border-color .16s ease,box-shadow .16s ease}
+#calendarTab .calday.today{outline:2px solid #dceaff;outline-offset:-3px}
+#calendarTab .calday.today .calnum{font-weight:900;text-decoration:underline;text-underline-offset:3px}
+#calendarTab .calday:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#calendarTab .calday.selected{box-shadow:0 0 0 2px #f6faff,0 8px 20px #0006}
+#calendarTab .calroutine{letter-spacing:.1px}
+.bars .barcol{position:relative;border-radius:6px;outline-offset:3px;transition:background .15s ease}
+.bars .barcol:hover,.bars .barcol:focus-visible{background:#8bb9ff12}
+.bars .barcol:focus-visible{outline:2px solid #9dcaff}
+.bars .barcol .bar{border-radius:6px 6px 2px 2px;transition:filter .15s ease}
+.bars .barcol:hover .bar,.bars .barcol:focus-visible .bar{filter:brightness(1.2)}
+.bars .barcol small{font-variant-numeric:tabular-nums;white-space:nowrap}
+#progress .progress-line-chart{width:100%;height:auto;max-height:280px;overflow:visible}
+#progress .progress-line-chart polyline{stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 5px #69d5b933)}
+#progress .progress-line-chart circle{cursor:crosshair;stroke:#142536;stroke-width:2;transition:r .15s ease,fill .15s ease}
+#progress .progress-line-chart circle:hover,#progress .progress-line-chart circle:focus-visible{r:7;fill:#c7ffe6;outline:none}
+.tabs{scroll-padding-inline:18px}
+.tab:focus-visible{outline:2px solid #a9ceff;outline-offset:-3px}
+@media(max-width:800px){main{padding:18px 16px 32px}.tabs{width:100%;max-width:100%;justify-content:flex-start;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;gap:4px;padding:5px;margin-bottom:16px}.tab{flex:none;scroll-snap-align:start;min-height:40px;white-space:nowrap}header{gap:14px}.controls{gap:9px}#overview .card{min-height:132px}}
+@media(max-width:600px){main{padding:12px 12px 28px}.tabs{position:sticky;top:0;z-index:30;border-radius:13px;box-shadow:0 8px 22px #0006}.tab{padding:10px 14px;font-size:12px;min-height:43px}header{flex-wrap:wrap}.controls{width:100%;display:flex;flex-wrap:wrap}.controls select{flex:1 1 130px;min-width:0}.controls button,.controls .button{flex:1 1 auto;text-align:center}#overview .cards{gap:10px}#overview .card{padding:15px;min-height:122px}#overview .cardhead{gap:5px;margin-bottom:8px}#overview .cardhead small{font-size:10px;letter-spacing:.8px}#overview .cardicon{width:29px;height:29px;font-size:15px}#overview .card strong{font-size:23px}#overview .card p{font-size:12px;margin-top:7px}.calendar{gap:4px}#calendarTab .calday{border-radius:7px}#calendarTab .calnum{font-size:11px}#calendarTab .calvolume{font-size:9px}}
+@media(prefers-reduced-motion:reduce){#overview .card,.bars .barcol,.bars .barcol .bar,#progress .progress-line-chart circle{transition:none}}
