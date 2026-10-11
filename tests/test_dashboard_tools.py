@@ -122,6 +122,12 @@ class DashboardTools(unittest.TestCase):
   muscles={m['muscle']:m for m in app.stats(3650)['muscles']}
   self.assertEqual(muscles['Chest']['sets'],1); self.assertEqual(muscles['Shoulders']['sets'],1)
 
+ def test_custom_exercise_muscle_classification(self):
+  expected={'Partial Lateral Raises':'Shoulders','Seated Overhead Dumbbell Extension':'Triceps','Standing Alternating Curl':'Biceps','Lean-Away Lateral Raise':'Shoulders','Isometric Hold at the Top':'Shoulders'}
+  for name,muscle in expected.items():
+   self.assertEqual(app.muscle_targets(name)[0][0],muscle)
+  self.assertEqual(app.template_muscles({'primary_muscle_group':'triceps','secondary_muscle_groups':['triceps']}),[('Triceps',1.0)])
+
  def test_timed_resistance_counts_muscle_without_inventing_reps(self):
   w=self.workout('plank','2026-10-01'); w['exercises']=[{'title':'Plank','sets':[{'type':'normal','duration_seconds':60}]}]
   with app.db() as db: db.execute('UPDATE workouts SET payload=? WHERE id=?',(json.dumps(w),'plank'))
