@@ -335,3 +335,14 @@ footer{margin-top:32px;padding-bottom:12px}
 .back-to-top:hover,.back-to-top:focus-visible{background:#2b6470;outline-offset:3px}
 .back-to-top[hidden]{display:none!important}
 @media(max-width:560px){.back-to-top{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));min-width:52px;min-height:52px;padding:10px 13px}.back-to-top span{display:none}}
+
+/* Workout start-hour distribution: actual counts, 24 hourly buckets */
+.hourly-panel{margin-top:20px;padding-top:14px;border-top:1px solid #344961}
+.hourly-panel h3{margin:0 0 8px}
+.hourly-chart{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:5px;height:160px;align-items:end;padding:12px 0 0}
+.hourly-slot{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0;cursor:help}
+.hourly-bar{width:100%;min-height:2px;max-height:calc(100% - 24px);background:#4987ae;border-radius:4px 4px 0 0}
+.hourly-bar.peak{background:#9be8be}
+.hourly-slot small{font-size:10px;color:#a7b8ca;height:18px;white-space:nowrap}
+.hourly-slot:focus-visible{outline:2px solid #9be8be;outline-offset:2px}
+@media(max-width:520px){.hourly-chart{gap:2px}.hourly-slot small{font-size:9px}}
