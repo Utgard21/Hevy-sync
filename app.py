@@ -366,9 +366,9 @@ class Handler(BaseHTTPRequestHandler):
   if u.path=='/api/export':
    with db() as c: data=[json.loads(r[0]) for r in c.execute('SELECT payload FROM workouts')]
    return self.reply(200,data)
-  files={'/':'index.html','/app.js':'app.js','/style.css':'style.css'}
+  files={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/manifest.webmanifest':'manifest.webmanifest','/icon.svg':'icon.svg','/sw.js':'sw.js'}
   if u.path not in files: return self.reply(404,{'error':'Not found'})
-  name=files[u.path]; return self.reply(200,(Path(__file__).parent/'static'/name).read_bytes(),{'html':'text/html; charset=utf-8','js':'application/javascript','css':'text/css'}[name.split('.')[-1]])
+  name=files[u.path]; return self.reply(200,(Path(__file__).parent/'static'/name).read_bytes(),{'html':'text/html; charset=utf-8','js':'application/javascript','css':'text/css','webmanifest':'application/manifest+json','svg':'image/svg+xml'}[name.split('.')[-1]])
  def do_POST(self):
   if not self.authenticated(): return self.auth_required()
   # Require a custom header so third-party pages cannot submit imports/syncs.
