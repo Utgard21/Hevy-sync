@@ -475,3 +475,50 @@ tbody tr{transition:background-color .16s ease}
  .mini p{font-size:13px}
 }
 @media print{.tabs{scrollbar-width:none}}
+
+/* Final mobile-first usability polish */
+.tabs{position:sticky;isolation:isolate;overscroll-behavior-x:contain}
+.tabs .tab{min-height:44px}
+.tabs .tab:active,.quick-dates button:active,.controls button:active{filter:brightness(.92);transform:scale(.985)}
+.cards>.card,.statsgrid>.mini,.insightgrid>.mini{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.cards>.card strong,.statsgrid>.mini strong,.insightgrid>.mini strong{margin-top:5px}
+.cards>.card p,.statsgrid>.mini p,.insightgrid>.mini p{margin-top:auto;min-width:0}
+.cards>.card{min-height:145px}
+.statsgrid>.mini{min-height:122px}
+.mini,.card{overflow-wrap:anywhere}
+.mini p,.card p{hyphens:auto}
+.bars{gap:6px;scrollbar-width:thin}
+.barcol{min-width:15px}
+.barcol small{color:#bdcbe0;font-size:10px}
+#chartTooltip{max-width:min(300px,calc(100vw - 20px));overflow-wrap:anywhere;line-height:1.5}
+.empty-state{padding:17px 19px;border:1px dashed #48607c;border-radius:13px;background:rgba(33,52,78,.38);color:#c5d3e4;line-height:1.6}
+button:disabled{cursor:not-allowed;opacity:.6}
+@media(max-width:600px){
+ .tabs{padding-right:24px;mask-image:linear-gradient(to right,#000 0%,#000 93%,transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 0%,#000 93%,transparent 100%)}
+ .tabs:focus-within{mask-image:none;-webkit-mask-image:none}
+ .tab{min-height:46px}
+ .cards>.card{min-height:135px}
+ .statsgrid>.mini{min-height:120px}
+ .barcol small{font-size:9px;letter-spacing:0}
+ .bars{gap:4px}
+ #chartTooltip{font-size:12px}
+ .calday{font-variant-numeric:tabular-nums}
+ button,.button,select,input[type="date"]{min-height:42px}
+}
+@media(max-width:390px){.cards>.card,.statsgrid>.mini{min-height:0}}
+@media(hover:none){.card:hover,article:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.tabs .tab:active,.quick-dates button:active,.controls button:active{transform:none}}
+/* Only the first load shows skeletons. Content is never obscured during background refresh. */
+body.initial-loading #cards:empty{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+body.initial-loading #cards:empty::before,
+body.initial-loading #cards:empty::after,
+body.initial-loading #weeklyReview:empty::before,
+body.initial-loading #weeklyReview:empty::after{
+ content:"";display:block;min-height:122px;border:1px solid #334760;border-radius:16px;
+ background:linear-gradient(105deg,#18263c 25%,#263952 43%,#18263c 61%);background-size:200% 100%;
+ animation:hevy-skeleton 1.5s ease-in-out infinite
+}
+body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::after{min-height:145px}
+@keyframes hevy-skeleton{to{background-position-x:-200%}}
+@media(max-width:900px){body.initial-loading #cards:empty{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::after,body.initial-loading #weeklyReview:empty::before,body.initial-loading #weeklyReview:empty::after{animation:none}}
