@@ -1,21 +1,21 @@
-# Hevy Progress
+# Hevy My Progress
 
 **v1.0.0** · Available in Unraid Community Applications · Docker / Unraid · Self-hosted · MIT
 
 
 A colorful, privacy-focused, self-hosted training analytics dashboard for [Hevy](https://hevy.com/), designed for Docker and Unraid.
 
-> **Now available in Unraid Community Applications.** Open **Apps**, search for **Hevy Progress**, and install it directly.
+> **Now available in Unraid Community Applications.** Open **Apps**, search for **Hevy Progress** (existing catalog listing), and install it directly.
 
-> **Unofficial project.** Hevy Progress is independent and is not affiliated with, endorsed by, or maintained by Hevy.
+> **Unofficial project.** Hevy My Progress is independent and is not affiliated with, endorsed by, or maintained by Hevy.
 
-> **Built for my own training workflow.** I originally built and configured Hevy Progress around my own needs, workout data, training habits, and self-hosted setup. I am sharing it because it may be useful to others, but your Hevy data and preferences may be different. Some analytics, exercise/muscle mappings, defaults, goals, UI choices, or deployment settings may need to be adjusted for your own use. Please review the results rather than assuming every default is a perfect fit for your training.
+> **Built for my own training workflow.** I originally built and configured Hevy My Progress around my own needs, workout data, training habits, and self-hosted setup. I am sharing it because it may be useful to others, but your Hevy data and preferences may be different. Some analytics, exercise/muscle mappings, defaults, goals, UI choices, or deployment settings may need to be adjusted for your own use. Please review the results rather than assuming every default is a perfect fit for your training.
 
 For more detail on what may need customization, see [`docs/USAGE-NOTES.md`](docs/USAGE-NOTES.md).
 
 ## What it does
 
-Hevy Progress turns your workout history into a private dashboard with:
+Hevy My Progress turns your workout history into a private dashboard with:
 
 - Overview, Progress, Analytics, Muscles, Measurements, Calendar, and full-history Reports views
 - Workout history filters (routine, exercise, date), exercise search, quick date presets, pinned Overview statistics, and saved browser preferences
@@ -42,10 +42,10 @@ Screenshots for the public listing should be captured from this demo dataset rat
 
 ## Unraid Community Applications
 
-**Hevy Progress is available in the Unraid Community Applications catalog.**
+**Hevy My Progress is available in the Unraid Community Applications catalog.**
 
 1. Open the **Apps** tab in Unraid.
-2. Search for **Hevy Progress**.
+2. Search for **Hevy Progress** (existing catalog listing).
 3. Select the app and install it.
 4. Add your Hevy API key if you want automatic API synchronization, or import a Hevy CSV export from the dashboard.
 
@@ -53,7 +53,7 @@ The native Unraid template is also included in this repository as `hevy-progress
 
 ### Unraid “Last Update” metadata
 
-Hevy Progress runs from GHCR (`ghcr.io/utgard21/hevy-sync:latest`). The current Community Applications client calculates the sidebar **Last Update** value for GHCR images by looking up a same-name repository on Docker Hub. If that Docker Hub mirror does not exist, Unraid can show **Unknown** even though the GHCR image and the Community Applications template are current.
+Hevy My Progress runs from GHCR (`ghcr.io/utgard21/hevy-sync:latest`). The current Community Applications client calculates the sidebar **Last Update** value for GHCR images by looking up a same-name repository on Docker Hub. If that Docker Hub mirror does not exist, Unraid can show **Unknown** even though the GHCR image and the Community Applications template are current.
 
 This repository keeps GHCR as the canonical runtime registry. The GitHub Actions workflow also supports an optional Docker Hub metadata mirror. To enable it:
 
@@ -120,7 +120,7 @@ If the import fails, inspect the sync status and verify API access. Preserve `/d
 
 ## Data handling
 
-Hevy Progress stores synced/imported workout data locally in SQLite under `/data`. The dashboard does not need your Hevy account password; API access uses `HEVY_API_KEY`.
+Hevy My Progress stores synced/imported workout data locally in SQLite under `/data`. The dashboard does not need your Hevy account password; API access uses `HEVY_API_KEY`.
 
 Warm-up sets are excluded from working-set, rep, and volume totals. Muscle classification prefers Hevy exercise-template metadata when available and falls back to local mappings when necessary. Primary and secondary muscle contributions are clearly presented as inferred analytics; missing weight, reps, distance, or duration are never fabricated.
 
