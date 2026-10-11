@@ -38,7 +38,7 @@ A privacy-safe sample file is included at `demo/demo-workouts.csv`. Import it in
 
 **Do not use demo data in your real instance unless you want those sample workouts stored alongside your own data.**
 
-Screenshots for the public listing should be captured from this demo dataset rather than a personal workout database. **Screenshot maintenance:** capture the current interface after each UI change, including Measurements and the latest sync indicators. Do not show the removed global-search toolbar or Collapse/Expand buttons; do not upload real measurements or identifiable workout history.
+Screenshots for the public listing should be captured from this demo dataset rather than a personal workout database. **Screenshot maintenance:** capture the current interface after each UI change, including Measurements and the latest sync indicators. Do not upload real measurements or identifiable workout history.
 
 ## Unraid Community Applications
 
