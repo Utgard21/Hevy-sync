@@ -17,7 +17,9 @@ For more detail on what may need customization, see [`docs/USAGE-NOTES.md`](docs
 
 Hevy Progress turns your workout history into a private dashboard with:
 
-- Overview, Progress, Analytics, Muscles, Calendar, and full-history Reports views
+- Overview, Progress, Analytics, Muscles, Measurements, Calendar, and full-history Reports views
+- Workout history filters (routine, exercise, date), exercise search, quick date presets, pinned Overview statistics, and saved browser preferences
+- Separate last-sync-attempt and last-successful-sync timestamps, plus recorded/calculated/estimated data labels
 - Workout frequency, volume, sets, reps, duration, streaks, and lifetime totals
 - Exercise progression, rep PRs, estimated 1RM, PR timeline, and mini trend cards
 - Interactive front/back muscle heatmap, primary/secondary muscle contribution analytics, recovery view, and weekly muscle sets
@@ -28,13 +30,15 @@ Hevy Progress turns your workout history into a private dashboard with:
 - Optional HTTP Basic Authentication
 - Multi-architecture Docker images for `linux/amd64` and `linux/arm64`
 
+For upgrades, troubleshooting, and measurement field details, see [Unraid upgrade guide](docs/UNRAID-UPGRADE.md), [FAQ and troubleshooting](docs/TROUBLESHOOTING.md), [measurement API notes](docs/MEASUREMENTS-API.md), and [changelog](CHANGELOG.md).
+
 ## Demo & screenshots
 
 A privacy-safe sample file is included at `demo/demo-workouts.csv`. Import it into a fresh/test instance to populate the dashboard for screenshots or to explore the UI without connecting a Hevy account.
 
 **Do not use demo data in your real instance unless you want those sample workouts stored alongside your own data.**
 
-Screenshots for the public listing should be captured from this demo dataset rather than a personal workout database.
+Screenshots for the public listing should be captured from this demo dataset rather than a personal workout database. **Screenshot maintenance:** capture the current interface after each UI change, including Measurements and the latest sync indicators. Do not show the removed global-search toolbar or Collapse/Expand buttons; do not upload real measurements or identifiable workout history.
 
 ## Unraid Community Applications
 
@@ -149,6 +153,10 @@ docker run -d \
   -e TZ=Europe/Sofia \
   hevy-dashboard:local
 ```
+
+## Upgrading on Unraid
+
+Keep your existing `/data` appdata mapping, API key, timezone, and authentication settings. Back up the appdata folder (including `hevy.sqlite`) before pulling the latest image, then use Unraid's normal **Update** action and verify `/health`, workout history, and the Measurements tab. See [the step-by-step Unraid upgrade guide](docs/UNRAID-UPGRADE.md).
 
 ## Backup
 
