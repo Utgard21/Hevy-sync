@@ -1,6 +1,6 @@
 {
-  "name": "Hevy Progress",
-  "short_name": "Hevy Progress",
+  "name": "Hevy My Progress",
+  "short_name": "My Progress",
   "description": "Self-hosted training dashboard",
   "start_url": "/",
   "scope": "/",
