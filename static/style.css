@@ -329,3 +329,9 @@ footer{margin-top:32px;padding-bottom:12px}
 .new-workout-notice{padding:12px 16px;margin:8px 0 16px;background:#163d43;border:1px solid #5cbb9f;border-radius:12px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 .new-workout-notice[hidden]{display:none}
 @media(max-width:700px){#heatmap{grid-auto-columns:9px;overflow-x:auto;scrollbar-width:thin}#weeklyReview,#recordExplorer{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Floating back-to-top action, safe on Android gesture-navigation screens. */
+.back-to-top{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:1000;display:flex;align-items:center;justify-content:center;gap:7px;min-width:70px;min-height:48px;padding:10px 16px;border:1px solid #7dddc2;border-radius:999px;background:#204c56;color:#f2fff9;font-size:14px;font-weight:700;box-shadow:0 8px 28px #0009;cursor:pointer}
+.back-to-top:hover,.back-to-top:focus-visible{background:#2b6470;outline-offset:3px}
+.back-to-top[hidden]{display:none!important}
+@media(max-width:560px){.back-to-top{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));min-width:52px;min-height:52px;padding:10px 13px}.back-to-top span{display:none}}
