@@ -547,3 +547,45 @@ body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::aft
  .why>summary{font-size:15px;padding:9px 10px}
 }
 @media(max-width:390px){.insightgrid{grid-template-columns:minmax(0,1fr)}.insight strong{font-size:14px}.insight p{font-size:13px}}
+
+/* Final density pass: content-led analytics cards, type rhythm and compact mobile charts. */
+:root{--type-caption:11px;--type-body:13px;--type-section:18px}
+.tabpage article{margin-bottom:16px}
+.tabpage article>h2,.tabpage article>.row h2{font-size:var(--type-section);line-height:1.3}
+.tabpage article>p,.tabpage article>.row p{line-height:1.55}
+.statsgrid,.insightgrid{align-items:start}
+.statsgrid>.mini,.insightgrid>.mini{min-height:0;height:auto;align-self:stretch}
+.statsgrid>.mini{gap:4px}
+.statsgrid>.mini strong{margin:5px 0 0}
+.statsgrid>.mini p{margin:7px 0 0;line-height:1.45}
+.insightgrid{grid-auto-rows:auto;align-items:stretch}
+.insight{height:auto;min-height:0;align-self:stretch}
+.insight p{margin:6px 0 0;line-height:1.45}
+.insight strong{display:block;line-height:1.32}
+.why{margin:10px 0 0}
+.why>summary{max-width:100%;width:max-content;line-height:1.3;padding:8px 11px}
+.why[open]>p{margin-top:9px}
+.bars{min-width:0;max-width:100%;overflow-x:auto}
+.barcol{min-width:0}
+.barcol small{display:block;max-width:100%;text-align:center;overflow:hidden;text-overflow:ellipsis}
+.back-to-top{box-shadow:0 5px 16px #0008}
+@media(max-width:700px){
+ :root{--type-section:17px}
+ .tabpage article{margin-bottom:12px}
+ .tabpage article>h2,.tabpage article>.row h2{margin-bottom:5px}
+ .statsgrid,.insightgrid{gap:9px}
+ .statsgrid>.mini{min-height:0!important;padding:11px}
+ .statsgrid>.mini p{margin-top:6px;font-size:12px}
+ .insight{min-height:0;padding:11px}
+ .insight p{font-size:12px;line-height:1.43}
+ .insight strong{font-size:13px}
+ .bars{gap:3px}
+ .barcol{min-width:12px}
+ .barcol small{font-size:9px;line-height:1.3}
+ .why>summary{font-size:14px;padding:8px 9px}
+ .back-to-top{right:calc(11px + env(safe-area-inset-right,0px));bottom:calc(13px + env(safe-area-inset-bottom,0px));min-width:44px;min-height:44px;width:44px;height:44px;padding:7px;font-size:17px}
+}
+@media(max-width:390px){
+ .statsgrid,.insightgrid{grid-template-columns:minmax(0,1fr)}
+ .statsgrid>.mini p,.insight p{font-size:13px}
+}
