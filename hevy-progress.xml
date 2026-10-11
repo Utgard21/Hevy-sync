@@ -20,7 +20,7 @@
   <Date>2026-10-11</Date>
   <MinVer>6.12.0</MinVer>
   <License>MIT</License>
-  <Config Name="WebUI" Target="8080" Default="8080" Mode="tcp" Description="HTTP port for the Hevy Progress dashboard." Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="WebUI" Target="8080" Default="8080" Mode="tcp" Description="HTTP port for the Hevy My Progress dashboard." Type="Port" Display="always" Required="true" Mask="false"/>
   <Config Name="Appdata" Target="/data" Default="/mnt/user/appdata/hevy-progress" Mode="rw" Description="Persistent SQLite database and application data." Type="Path" Display="always" Required="true" Mask="false"/>
   <Config Name="Hevy API Key" Target="HEVY_API_KEY" Default="" Description="Optional Hevy API key for automatic workout and available body-measurement synchronization. Leave blank for workout CSV import and manual body measurements." Type="Variable" Display="always" Required="false" Mask="true"/>
   <Config Name="Dashboard Username" Target="DASHBOARD_USERNAME" Default="" Description="Optional dashboard username. Set both username and password to enable HTTP Basic Authentication." Type="Variable" Display="advanced" Required="false" Mask="false"/>
