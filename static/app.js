@@ -39,7 +39,30 @@ function notifyNewWorkouts(previous,current){const box=$('newWorkoutNotice');if(
 
 /* Quality-of-life controls. Browser-only preferences never change recorded workouts. */
 function showTab(id){const btn=[...document.querySelectorAll('.tab')].find(b=>b.dataset.tab===id);if(!btn)return;uiState.tab=id;rememberUI();document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.tabpage').forEach(p=>p.classList.toggle('active',p.id===id))}
-function renderHistory(){const box=$('recent');if(!box||!data)return;box.replaceChildren();const query=$('historyQuery').value.trim().toLocaleLowerCase(),exercise=$('historyExercise').value,from=$('historyFrom').value,to=$('historyTo').value;const rows=(data.recent||[]).filter(w=>(!query||w.title.toLocaleLowerCase().includes(query))&&(!exercise||(w.exercise_names||[]).includes(exercise))&&(!from||w.date.slice(0,10)>=from)&&(!to||w.date.slice(0,10)<=to));$('historyCount').textContent=rows.length+' of '+(data.recent||[]).length+' most recent workouts in selected range';if(!rows.length)text(box,'p','No workouts match these filters. Try another date range or clear your filters.','empty-state');rows.forEach(w=>{const b=text(box,'div','','session'),l=text(b,'div','');text(l,'strong',w.title);text(l,'p',new Date(w.date).toLocaleDateString()+' · '+w.exercises+' exercises');const view=text(b,'button',w.minutes+' min · View','detailbutton');view.onclick=()=>showWorkout(w.id)})}
+let historyVisible=10,historyFilterKey='';
+function renderHistory(){
+ const box=$('recent');if(!box||!data)return;
+ const query=$('historyQuery').value.trim().toLocaleLowerCase(),exercise=$('historyExercise').value,from=$('historyFrom').value,to=$('historyTo').value;
+ const key=JSON.stringify([query,exercise,from,to,data.date_range]);
+ if(key!==historyFilterKey){historyVisible=10;historyFilterKey=key}
+ const all=data.recent||[];
+ const rows=all.filter(w=>(!query||w.title.toLocaleLowerCase().includes(query))&&(!exercise||(w.exercise_names||[]).includes(exercise))&&(!from||w.date.slice(0,10)>=from)&&(!to||w.date.slice(0,10)<=to));
+ box.replaceChildren();
+ const visible=rows.slice(0,historyVisible);
+ $('historyCount').textContent=rows.length===all.length?rows.length+' workouts in selected range · showing '+visible.length:rows.length+' matching of '+all.length+' workouts · showing '+visible.length;
+ if(!rows.length){text(box,'p','No workouts match these filters. Try another date range or clear your filters.','empty-state');return}
+ for(const w of visible){
+  const b=text(box,'div','','session'),l=text(b,'div','');
+  text(l,'strong',w.title);
+  text(l,'p',new Date(w.date).toLocaleDateString()+' · '+w.exercises+' exercises');
+  const view=text(b,'button',w.minutes+' min · View','detailbutton');
+  view.onclick=()=>showWorkout(w.id)
+ }
+ if(visible.length<rows.length){
+  const more=text(box,'button','Show next '+Math.min(10,rows.length-visible.length)+' workouts ('+(rows.length-visible.length)+' remaining)','history-more');
+  more.type='button';more.onclick=()=>{historyVisible+=10;renderHistory()}
+ }
+}
 function populateHistoryExercises(){const sel=$('historyExercise'),old=sel.value;sel.replaceChildren();const none=text(sel,'option','All exercises');none.value='';const names=[...new Set((data?.recent||[]).flatMap(w=>w.exercise_names||[]))].sort();for(const name of names){const o=text(sel,'option',name);o.value=name}if(names.includes(old))sel.value=old;renderHistory()}
 function updateSyncTimes(){const el=$('lastUpdated'),st=data?.status;if(!el||!st)return;const fmt=x=>x?new Date(x).toLocaleString():'Not recorded';el.textContent='Last successful Hevy sync: '+fmt(st.last_sync)+' · Last attempt: '+fmt(st.last_attempt)+(st.syncing?' · Sync in progress':st.error?' · Last attempt failed':'');el.title='A successful sync means the API snapshot was stored; an attempt may fail without replacing cached workouts.'}
 function renderMetricPins(){const cards=$('cards');if(!cards)return;const pinned=new Set(uiState.pinnedStats||[]);[...cards.children].forEach(card=>{const label=card.querySelector('.cardhead small')?.textContent;if(!label)return;const btn=document.createElement('button');btn.type='button';btn.className='pin-stat';btn.textContent=pinned.has(label)?'📌':'☆';btn.title=pinned.has(label)?'Unpin '+label:'Pin '+label;btn.setAttribute('aria-label',btn.title);btn.setAttribute('aria-pressed',String(pinned.has(label)));btn.onclick=()=>{if(pinned.has(label))pinned.delete(label);else pinned.add(label);uiState.pinnedStats=[...pinned];rememberUI();renderMetricPins()};card.querySelector('.pin-stat')?.remove();card.appendChild(btn);card.classList.toggle('is-pinned',pinned.has(label))});[...cards.children].sort((a,b)=>Number(b.classList.contains('is-pinned'))-Number(a.classList.contains('is-pinned'))).forEach(card=>cards.appendChild(card))}
