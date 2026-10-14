@@ -3,6 +3,7 @@ from pathlib import Path
 root = Path('/app')
 app_path = root / 'app.py'
 index_path = root / 'static' / 'index.html'
+ui_path = root / 'static' / 'app.js'
 
 
 def patch_once(source, old, new, label):
@@ -44,6 +45,18 @@ app = patch_once(
     'static file map',
 )
 app_path.write_text(app, encoding='utf-8')
+
+# rep_prs stores the best recorded load at an exact repetition count. Calling
+# those values "8RM", "10RM", etc. implies a true repetition maximum, which
+# the recorded workout data does not establish. Label the chips literally.
+ui = ui_path.read_text(encoding='utf-8')
+ui = patch_once(
+    ui,
+    "r+'RM · '+num(w)+' kg'",
+    "'Best '+r+'-rep set · '+num(w)+' kg'",
+    'exact-rep record chip label',
+)
+ui_path.write_text(ui, encoding='utf-8')
 
 index = index_path.read_text(encoding='utf-8')
 if '/polish.css' not in index:
