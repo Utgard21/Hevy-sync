@@ -43,6 +43,11 @@
   }
 
   function tidyAnalyticsLayout() {
+    const monthlyGrid = document.getElementById('monthly')?.closest('.grid');
+    const exerciseGrid = document.getElementById('topExercises')?.closest('.grid');
+    if (monthlyGrid) monthlyGrid.classList.add('analytics-paired-grid', 'analytics-month-row');
+    if (exerciseGrid) exerciseGrid.classList.add('analytics-paired-grid', 'analytics-exercise-row');
+
     const recordsArticle = document.getElementById('records')?.closest('article');
     const patternsArticle = document.getElementById('patterns')?.closest('article');
     if (!recordsArticle || !patternsArticle || recordsArticle.parentElement !== patternsArticle.parentElement) return;
