@@ -4,20 +4,45 @@ root = Path('/app')
 app_path = root / 'app.py'
 index_path = root / 'static' / 'index.html'
 
-app = app_path.read_text(encoding='utf-8')
-old_e1rm = "item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm);"
-new_e1rm = "item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm,item['best_weight']);"
-if old_e1rm in app:
-    app = app.replace(old_e1rm, new_e1rm, 1)
-elif new_e1rm not in app:
-    raise RuntimeError('Could not locate e1RM assignment to patch')
 
-old_static = "'/sw.js':'sw.js'}"
-new_static = "'/sw.js':'sw.js','/polish.js':'polish.js','/polish.css':'polish.css'}"
-if old_static in app:
-    app = app.replace(old_static, new_static, 1)
-elif new_static not in app:
-    raise RuntimeError('Could not locate static file map to patch')
+def patch_once(source, old, new, label):
+    if old in source:
+        return source.replace(old, new, 1)
+    if new not in source:
+        raise RuntimeError(f'Could not locate {label} to patch')
+    return source
+
+
+app = app_path.read_text(encoding='utf-8')
+
+app = patch_once(
+    app,
+    "item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm);",
+    "item['best_weight']=max(old_weight,best); item['e1rm']=max(old_e1rm,best_e1rm,item['best_weight']);",
+    'e1RM assignment',
+)
+
+# Keep the timeline compact, but expose the exact event count separately so
+# monthly reports never mistake the 30-event payload cap for the real total.
+app = patch_once(
+    app,
+    "'load':load,'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}",
+    "'load':load,'pr_count':len(prs),'prs':sorted(prs,key=lambda x:x['date'],reverse=True)[:30]}",
+    'PR count response',
+)
+
+# Manual measurements can override every metric that the Hevy importer stores,
+# including side-specific measurements. Imported values themselves remain read-only.
+old_manual_metrics = "if metric not in ('weight','waist','chest','hips','biceps','thigh','neck','shoulders','calf'): raise ValueError('Unknown measurement')"
+new_manual_metrics = "if metric not in ('weight','waist','chest','hips','biceps','thigh','neck','shoulders','calf','left_biceps','right_biceps','left_thigh','right_thigh','left_calf','right_calf','left_forearm','right_forearm','lean_mass','body_fat','abdomen'): raise ValueError('Unknown measurement')"
+app = patch_once(app, old_manual_metrics, new_manual_metrics, 'manual measurement metric whitelist')
+
+app = patch_once(
+    app,
+    "'/sw.js':'sw.js'}",
+    "'/sw.js':'sw.js','/polish.js':'polish.js','/polish.css':'polish.css'}",
+    'static file map',
+)
 app_path.write_text(app, encoding='utf-8')
 
 index = index_path.read_text(encoding='utf-8')
