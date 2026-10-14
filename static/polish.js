@@ -1,7 +1,5 @@
 /* Final analytics polish: layout, comparison windows, labels and presentation fixes. */
 (() => {
-  const DAY_MS = 86400000;
-
   const monthLabel = (key, includeYear = false) => {
     const [year, month] = String(key || '').split('-').map(Number);
     if (!year || !month) return key || '';
@@ -16,7 +14,7 @@
   };
 
   function normalizeE1rmData() {
-    if (!window.data) return;
+    if (typeof data === 'undefined' || !data) return;
     for (const exercise of data.exercises || []) {
       exercise.e1rm = Math.max(Number(exercise.e1rm) || 0, Number(exercise.best_weight) || 0);
     }
@@ -28,7 +26,7 @@
 
   function renderCorrectedRecords() {
     const box = document.getElementById('records');
-    if (!box || !window.data) return;
+    if (!box || typeof data === 'undefined' || !data) return;
     box.replaceChildren();
     const rows = data.records || [];
     if (!rows.length) {
@@ -54,7 +52,7 @@
   }
 
   function polishMonthlyLabels() {
-    if (!window.data) return;
+    if (typeof data === 'undefined' || !data) return;
     const rows = data.monthly || [];
     const years = new Set(rows.map(x => String(x.month || '').slice(0, 4)));
     const includeYear = years.size > 1;
@@ -65,7 +63,7 @@
   }
 
   function polishLoadRatio() {
-    if (!window.data?.load?.available) return;
+    if (typeof data === 'undefined' || !data?.load?.available) return;
     const cards = [...document.querySelectorAll('#load .mini')];
     const card = cards.find(x => x.querySelector('small')?.textContent?.toLowerCase().includes('7d vs 28d'));
     const strong = card?.querySelector('strong');
@@ -74,7 +72,7 @@
 
   function renderGroupedPrTimeline() {
     const box = document.getElementById('prTimeline');
-    if (!box || !window.data) return;
+    if (!box || typeof data === 'undefined' || !data) return;
     box.replaceChildren();
     const prs = data.prs || [];
     if (!prs.length) {
@@ -106,7 +104,7 @@
 
   async function polishCurrentMonthReport() {
     const key = document.getElementById('reportMonth')?.value;
-    if (!key || !window.reportArchive) return;
+    if (!key || typeof reportArchive === 'undefined' || !reportArchive) return;
     const now = new Date();
     const currentKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     if (key !== currentKey) return;
@@ -158,18 +156,18 @@
     if (typeof progress === 'function' && document.getElementById('exercise')?.value) progress();
   }
 
-  const existingRenderMonthlyReport = window.renderMonthlyReport;
-  if (typeof existingRenderMonthlyReport === 'function') {
-    window.renderMonthlyReport = async function (...args) {
+  const existingRenderMonthlyReport = typeof renderMonthlyReport === 'function' ? renderMonthlyReport : null;
+  if (existingRenderMonthlyReport) {
+    renderMonthlyReport = async function (...args) {
       const result = await existingRenderMonthlyReport.apply(this, args);
       await polishCurrentMonthReport();
       return result;
     };
   }
 
-  const existingLoad = window.load;
-  if (typeof existingLoad === 'function') {
-    window.load = async function (...args) {
+  const existingLoad = typeof load === 'function' ? load : null;
+  if (existingLoad) {
+    load = async function (...args) {
       const result = await existingLoad.apply(this, args);
       applyPolish();
       await polishCurrentMonthReport();
@@ -181,7 +179,7 @@
   let attempts = 0;
   const initial = setInterval(async () => {
     attempts += 1;
-    if (window.data) {
+    if (typeof data !== 'undefined' && data) {
       clearInterval(initial);
       applyPolish();
       await polishCurrentMonthReport();
