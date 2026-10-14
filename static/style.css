@@ -603,3 +603,35 @@ body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::aft
  #musclePairs .muscle-pair-card small{font-size:10px}
  #musclePairs .muscle-pair-note{font-size:11px}
 }
+
+/* Desktop screenshot review: content-led panels, legible metrics and reports. */
+@media(min-width:701px){
+ #progressTab .progress-top-grid,
+ #analytics>.grid,
+ #musclesTab>.musclegrid{align-items:start}
+ #progressTab .progress-top-grid>article,
+ #analytics>.grid>article,
+ #musclesTab>.musclegrid>article{height:auto;align-self:start}
+ #musclesTab .bodymap{height:auto;min-height:0;padding:10px 4px 4px}
+ #musclesTab .body-svg{height:min(570px,65vw)!important;max-width:100%;width:auto}
+ #musclesTab .heatlegend{margin-top:8px}
+}
+#overview .cards>.card{min-width:0;min-height:0}
+#overview .cardhead{align-items:flex-start;gap:7px}
+#overview .cardhead small{min-width:0;line-height:1.4;overflow-wrap:anywhere}
+#overview .card strong{line-height:1.2;overflow-wrap:anywhere}
+#overview .card p{line-height:1.45}
+#progressTab .note,#analytics .note{line-height:1.55}
+#progressTab .exercise-compare label,#progressTab .history-filters label{line-height:1.4}
+#analytics .rank,#analytics #patterns{min-width:0}
+#analytics .rank small,#analytics .statsgrid small{line-height:1.4}
+#reportsTab .report-workouts-toggle{display:block;width:100%;min-height:42px;margin:8px 0 0;border:1px solid #547291;border-radius:10px;background:#20354d;color:#dbeafe;font-size:13px;font-weight:700;cursor:pointer}
+#reportsTab .report-workouts-toggle:hover{background:#2b4764;border-color:#82b5e7}
+#reportsTab .report-workouts-toggle:focus-visible{outline:2px solid #91c4ff;outline-offset:3px}
+@media(max-width:700px){
+ #progressTab .progress-top-grid>article,#analytics>.grid>article,#musclesTab>.musclegrid>article{height:auto}
+ #musclesTab .bodymap{min-height:0;height:auto}
+ #musclesTab .body-svg{height:min(480px,110vw)!important;max-width:100%}
+ #overview .cardhead{gap:5px}
+ #reportsTab .report-workouts-toggle{font-size:13px}
+}
