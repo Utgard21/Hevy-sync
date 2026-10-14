@@ -30,6 +30,22 @@
 #analytics .analytics-final-grid #records .session{padding:11px 0}
 #analytics .analytics-final-grid .mini{min-height:88px}
 
+/* Muscles page: use the same balanced-card treatment as Analytics.
+   The heatmap and muscle-balance cards share a row, so their frames should
+   finish at the same point instead of leaving a large dead area under the map. */
+#musclesTab>.grid{margin-bottom:20px}
+#musclesTab>.grid>article{margin-bottom:0}
+
+@media(min-width:801px){
+ #musclesTab>.grid{align-items:stretch}
+ #musclesTab>.grid>article{align-self:stretch;height:100%}
+
+ #musclesTab .musclegrid>article:first-child{display:flex;flex-direction:column}
+ #musclesTab .musclegrid>article:first-child .bodytabs{flex:0 0 auto}
+ #musclesTab .musclegrid>article:first-child .bodymap{flex:1;min-height:520px}
+ #musclesTab .musclegrid>article:first-child .heatlegend{flex:0 0 auto;margin-top:auto}
+}
+
 #prTimeline .pr-grouped{align-items:center}
 #prTimeline .pr-grouped p{max-width:920px;line-height:1.45}
 #prTimeline .pr-count{flex:0 0 auto;padding:5px 9px;border:1px solid #385178;border-radius:999px;background:#192845;color:#8ff0d1;font-size:11px;font-weight:700}
@@ -40,5 +56,6 @@
  #analytics .analytics-paired-grid{margin-bottom:16px}
  #analytics .analytics-final-grid #patterns,
  #analytics .analytics-final-grid #recordExplorer{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #musclesTab>.grid{margin-bottom:16px}
 }
 @media(max-width:520px){#analytics .analytics-final-grid #patterns,#analytics .analytics-final-grid #recordExplorer{grid-template-columns:1fr}}
