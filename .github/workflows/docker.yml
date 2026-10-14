@@ -16,7 +16,9 @@ jobs:
         with:
           python-version: '3.13'
       - run: python -m unittest discover -s tests -v
+      - run: python -m py_compile build_overlay.py
       - run: node --check static/app.js
+      - run: node --check static/polish.js
   docker:
     needs: test
     runs-on: ubuntu-latest
