@@ -59,3 +59,105 @@
  #musclesTab>.grid{margin-bottom:16px}
 }
 @media(max-width:520px){#analytics .analytics-final-grid #patterns,#analytics .analytics-final-grid #recordExplorer{grid-template-columns:1fr}}
+
+/* Mobile QA pass — tuned against a 412px Pixel 9 viewport. */
+@media(max-width:600px){
+ /* Show every section instead of hiding the last tabs off-screen. */
+ .tabs{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  width:100%;
+  max-width:none;
+  gap:5px;
+  overflow:visible;
+  top:8px;
+  padding:5px;
+  margin-bottom:24px;
+ }
+ .tab{
+  min-width:0;
+  width:100%;
+  padding:9px 4px;
+  font-size:11px;
+  white-space:nowrap;
+ }
+
+ /* Keep the page comfortably inset without wasting mobile width. */
+ main{width:calc(100% - 20px);padding-top:18px}
+ header{gap:14px}
+ h1{font-size:34px;line-height:1.08}
+ header>div:first-child{width:100%}
+ .controls{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  width:100%;
+  gap:8px;
+ }
+ .controls>*{width:100%;min-width:0}
+ .controls .button{grid-column:1/-1;text-align:center}
+
+ /* The two-column summary layout is useful on phones, but provenance and icons
+    were squeezing labels down to one character per line. Keep the labels normal. */
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .card{padding:14px;min-height:142px}
+ .cardhead{display:block!important;min-height:30px;padding-right:32px}
+ .cardhead small{
+  display:block;
+  width:auto!important;
+  max-width:100%;
+  white-space:normal;
+  word-break:normal;
+  overflow-wrap:normal;
+  line-height:1.35;
+  letter-spacing:1.3px;
+ }
+ .cardhead .metric-source{display:none}
+ .cardhead .cardicon{position:absolute;right:11px;top:11px}
+ .card strong{font-size:24px;margin:8px 0}
+ .card p{font-size:11px;line-height:1.4}
+ .pin-stat{width:30px;height:30px;min-width:30px;padding:0}
+
+ /* Slightly denser but still touch-friendly secondary cards. */
+ .statsgrid{gap:10px}
+ .mini{padding:12px}
+ .mini strong{font-size:20px}
+ .session{gap:8px}
+
+ /* Progress filters should use the full width instead of becoming tiny controls. */
+ .history-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #historyQuery,#historyExercise,#historyClear{grid-column:1/-1;width:100%}
+ .history-filters label{min-width:0}
+ .history-filters input,.history-filters select{width:100%;min-width:0}
+ .history-more{width:100%}
+
+ /* Preserve table readability: scroll horizontally rather than crushing dates,
+    units and headings into multi-line slivers. */
+ #measureHistory{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #measureHistory table{min-width:560px}
+ #progressTab .scroll table{min-width:700px}
+ #musclesTab .scroll table{min-width:680px}
+ .scroll{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+
+ /* Calendar stays seven columns, just with tighter gaps and padding. */
+ .calendar{gap:4px}
+ .calday,.calempty{min-height:50px}
+ .calday{padding:5px}
+ .calnav{gap:6px}
+
+ /* Report rows read better when the totals sit below the description on phones. */
+ #monthlyReport .reportworkouts .session{display:grid;grid-template-columns:1fr;gap:4px}
+ #monthlyReport .reportworkouts .session>span{text-align:left;white-space:normal}
+
+ /* The floating helper should not cover card content on small screens. */
+ .back-to-top{right:12px;bottom:12px;width:44px;height:44px;min-width:44px;padding:0;border-radius:50%}
+ .back-to-top span{display:none}
+
+ footer{overflow-wrap:anywhere}
+}
+
+@media(max-width:420px){
+ .tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .tab{font-size:10px;padding-inline:2px}
+ h1{font-size:32px}
+ .card{padding:13px}
+}
