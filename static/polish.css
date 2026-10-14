@@ -76,4 +76,51 @@
 
  /* Keep the history search field visually consistent with the other mobile controls. */
  #historyQuery{width:100%;box-sizing:border-box;background:#213650;color:#e7eefc;border-color:#47617f}
+
+ /* Real mobile Chrome is less forgiving than DevTools emulation here. The old
+    flex header allowed the provenance + icon to squeeze the metric title down
+    to a one-character column. Give the title its own grid area instead. */
+ #cards .card{padding:16px;min-width:0}
+ #cards .cardhead{
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) auto;
+   grid-template-areas:"title icon" "source icon";
+   column-gap:8px;
+   row-gap:4px;
+   align-items:start;
+   min-width:0;
+ }
+ #cards .cardhead>small{
+   grid-area:title;
+   display:block;
+   min-width:0;
+   width:auto;
+   max-width:100%;
+   white-space:normal;
+   word-break:normal;
+   overflow-wrap:normal;
+   hyphens:none;
+   letter-spacing:.9px;
+   line-height:1.25;
+   font-size:10px;
+ }
+ #cards .cardhead>.metric-source{
+   grid-area:source;
+   display:block;
+   min-width:0;
+   max-width:100%;
+   white-space:normal;
+   word-break:normal;
+   overflow-wrap:normal;
+   line-height:1.2;
+   font-size:9px;
+ }
+ #cards .cardhead>.cardicon{grid-area:icon;align-self:start;justify-self:end;flex:0 0 auto}
+ #cards .card>strong{margin-top:14px}
+ #cards .card>p{padding-right:42px;line-height:1.35}
+
+ /* Keep the floating shortcut useful without covering a metric's lower-right
+    content or the weekly-goal inputs. */
+ .back-to-top{width:46px!important;height:46px!important;min-width:46px!important;right:10px!important;bottom:14px!important;padding:0!important}
+ .back-to-top span{display:none!important}
 }
