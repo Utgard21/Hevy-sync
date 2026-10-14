@@ -1,15 +1,15 @@
 /* Final analytics layout polish. */
 #analytics .grid{align-items:start}
 
-/* Keep the two paired analytics rows visually balanced on desktop.
-   The taller card defines the row height and its partner stretches to match it. */
+/* Match the two paired analytics rows on desktop without relying on :has().
+   These are the 2nd and 3rd direct grid sections inside Analytics. */
 @media(min-width:801px){
- #analytics .grid:has(#monthly):has(#achievements),
- #analytics .grid:has(#topExercises):has(#workoutTypes){align-items:stretch}
- #analytics .grid:has(#monthly):has(#achievements)>article,
- #analytics .grid:has(#topExercises):has(#workoutTypes)>article{height:auto}
- #analytics .grid:has(#monthly):has(#achievements)>article:has(#monthly){display:flex;flex-direction:column}
- #analytics .grid:has(#monthly):has(#achievements) #monthly{flex:1;height:auto;min-height:190px}
+ #analytics>section.grid:nth-of-type(2),
+ #analytics>section.grid:nth-of-type(3){align-items:stretch}
+ #analytics>section.grid:nth-of-type(2)>article,
+ #analytics>section.grid:nth-of-type(3)>article{align-self:stretch;height:100%;margin-bottom:0}
+ #analytics>section.grid:nth-of-type(2)>article:first-child{display:flex;flex-direction:column}
+ #analytics>section.grid:nth-of-type(2)>article:first-child #monthly{flex:1;height:auto;min-height:220px}
 }
 
 #analytics .analytics-final-grid{grid-template-columns:1fr;gap:20px}
