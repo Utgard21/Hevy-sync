@@ -1,5 +1,17 @@
 /* Final analytics layout polish. */
 #analytics .grid{align-items:start}
+
+/* Keep the two paired analytics rows visually balanced on desktop.
+   The taller card defines the row height and its partner stretches to match it. */
+@media(min-width:801px){
+ #analytics .grid:has(#monthly):has(#achievements),
+ #analytics .grid:has(#topExercises):has(#workoutTypes){align-items:stretch}
+ #analytics .grid:has(#monthly):has(#achievements)>article,
+ #analytics .grid:has(#topExercises):has(#workoutTypes)>article{height:auto}
+ #analytics .grid:has(#monthly):has(#achievements)>article:has(#monthly){display:flex;flex-direction:column}
+ #analytics .grid:has(#monthly):has(#achievements) #monthly{flex:1;height:auto;min-height:190px}
+}
+
 #analytics .analytics-final-grid{grid-template-columns:1fr;gap:20px}
 #analytics .analytics-final-grid>article{margin-bottom:0}
 #analytics .analytics-final-grid #patterns{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
