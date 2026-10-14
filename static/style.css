@@ -667,3 +667,25 @@ body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::aft
  #analytics #recordExplorer{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:390px){#analytics #recordExplorer{grid-template-columns:minmax(0,1fr)}}
+
+/* Final screenshot polish: compact secondary metrics without hiding data. */
+#analytics #dataConfidence{gap:8px}
+#analytics #dataConfidence>.mini{padding:11px 13px;min-height:0}
+#analytics #dataConfidence>.mini strong{font-size:clamp(17px,1.7vw,23px);line-height:1.25}
+#analytics #dataConfidence>.mini p{font-size:11px;line-height:1.4;margin-top:3px}
+#analytics #yearlyConsistency>.mini small{line-height:1.45}
+#progressTab #historyCount{font-weight:600;color:#b9d9f7;letter-spacing:.01em}
+#progressTab #recent .session{min-width:0}
+#progressTab #recent .session strong{overflow-wrap:anywhere}
+#overview #journeyStats .journeyitem{min-width:0}
+#overview #journeyStats .journeyitem strong{overflow-wrap:anywhere}
+#musclesTab .musclelabel{gap:10px;min-width:0}
+#musclesTab .musclelabel span{text-align:right;flex-shrink:0}
+#reportsTab .reportstats>.mini{min-width:0}
+#reportsTab .reportstats>.mini strong{overflow-wrap:anywhere}
+@media(max-width:700px){
+ #analytics #dataConfidence>.mini{padding:10px}
+ #analytics #dataConfidence>.mini strong{font-size:19px}
+ #analytics #dataConfidence>.mini p{font-size:11px}
+ #musclesTab .musclelabel span{font-size:11px}
+}
