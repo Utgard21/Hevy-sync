@@ -13,6 +13,8 @@
     return n.toFixed(2).replace(/0+$/, '').replace(/\.$/, '') + '×';
   };
 
+  const localIsoDate = date => date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
   function normalizeE1rmData() {
     if (typeof data === 'undefined' || !data) return;
     for (const exercise of data.exercises || []) {
@@ -54,6 +56,76 @@
     const grid = recordsArticle.parentElement;
     grid.classList.add('analytics-final-grid');
     if (grid.firstElementChild !== patternsArticle) grid.insertBefore(patternsArticle, recordsArticle);
+  }
+
+  function effectiveTrainingBounds() {
+    if (typeof data === 'undefined' || !data) return null;
+    const endKey = data.date_range?.end;
+    let startKey = data.date_range?.start;
+    const firstRecorded = data.lifetime?.first_date;
+    if (firstRecorded && (!startKey || firstRecorded > startKey)) startKey = firstRecorded;
+    if (!startKey || !endKey) return null;
+    const start = new Date(startKey + 'T12:00:00');
+    const end = new Date(endKey + 'T12:00:00');
+    return { start, end, startKey, endKey, days: Math.max(1, Math.round((end - start) / 86400000) + 1) };
+  }
+
+  function correctedChartRows() {
+    const bounds = effectiveTrainingBounds();
+    if (!bounds || typeof data === 'undefined' || !data) return [];
+    if (bounds.days < 365) {
+      const monday = new Date(bounds.start);
+      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+      const firstWeek = localIsoDate(monday);
+      return (data.weekly || [])
+        .filter(w => w.date >= firstWeek && w.date <= bounds.endKey)
+        .map(w => ({ ...w, label: w.date.slice(5), title: 'Week of ' + w.date }));
+    }
+    const firstMonth = bounds.startKey.slice(0, 7);
+    return (data.monthly || [])
+      .filter(w => w.month >= firstMonth && w.month <= bounds.endKey.slice(0, 7))
+      .map(w => ({ ...w, label: w.month.slice(5), title: 'Month ' + w.month }));
+  }
+
+  function installCorrectedChartRows() {
+    if (typeof chartRows === 'function') chartRows = correctedChartRows;
+  }
+
+  function polishOverviewChartCadence() {
+    const bounds = effectiveTrainingBounds();
+    const monthly = Boolean(bounds && bounds.days >= 365);
+    const cadence = monthly ? 'month' : 'week';
+    const frequency = document.getElementById('frequency')?.closest('article');
+    const volume = document.getElementById('volume')?.closest('article');
+    const sets = document.getElementById('setsChart')?.closest('article');
+    const time = document.getElementById('timeChart')?.closest('article');
+    if (frequency) {
+      const h = frequency.querySelector('h2'), p = frequency.querySelector('p');
+      if (h) h.textContent = monthly ? '📅 Monthly consistency' : '📅 Weekly consistency';
+      if (p) p.textContent = 'Workouts per ' + cadence;
+    }
+    if (volume) {
+      const p = volume.querySelector('p');
+      if (p) p.textContent = 'Weight × reps per ' + cadence;
+    }
+    if (sets) {
+      const h = sets.querySelector('h2'), p = sets.querySelector('p');
+      if (h) h.textContent = monthly ? '🔥 Sets per month' : '🔥 Sets per week';
+      if (p) p.textContent = 'Working sets, excluding warm-ups';
+    }
+    if (time) {
+      const p = time.querySelector('p');
+      if (p) p.textContent = 'Minutes trained per ' + cadence;
+    }
+  }
+
+  function rerenderOverviewCharts() {
+    if (typeof bars !== 'function' || typeof data === 'undefined' || !data) return;
+    bars('frequency', 'workouts');
+    bars('volume', 'volume');
+    bars('setsChart', 'sets');
+    bars('timeChart', 'minutes');
+    polishOverviewChartCadence();
   }
 
   function polishMonthlyLabels() {
@@ -100,11 +172,103 @@
     });
   }
 
+  function renderCorrectedExerciseBreakdown() {
+    const box = document.getElementById('table');
+    if (!box || typeof data === 'undefined' || !data) return;
+    box.replaceChildren();
+    const sort = document.getElementById('exerciseSort')?.value || 'volume';
+    const latest = e => (e.history || []).reduce((max, h) => h.date > max ? h.date : max, '');
+    const rows = [...(data.exercises || [])].sort((a, b) => {
+      if (sort === 'name') return a.name.localeCompare(b.name);
+      if (sort === 'recent') return latest(b).localeCompare(latest(a)) || a.name.localeCompare(b.name);
+      const field = sort === 'sessions' ? 'sessions' : sort === 'sets' ? 'sets' : 'volume';
+      return (Number(b[field]) || 0) - (Number(a[field]) || 0) || a.name.localeCompare(b.name);
+    });
+    for (const e of rows) {
+      const tr = text(box, 'tr', '');
+      const hasWeightedSets = Number(e.measurement_counts?.weighted || 0) > 0 || e.measurement_type === 'weighted';
+      const values = [
+        e.name,
+        e.sessions,
+        e.sets,
+        num(e.reps),
+        hasWeightedSets && Number(e.best_weight) > 0 ? num(e.best_weight) : '—',
+        hasWeightedSets && Number(e.e1rm) > 0 ? num(e.e1rm) : '—',
+        hasWeightedSets && Number(e.volume) > 0 ? num(e.volume) : '—'
+      ];
+      values.forEach(v => text(tr, 'td', v));
+      tr.title = 'Last recorded: ' + (latest(e) || 'Unknown');
+    }
+  }
+
+  function installExerciseBreakdownFix() {
+    const select = document.getElementById('exerciseSort');
+    if (select) select.onchange = renderCorrectedExerciseBreakdown;
+    renderCorrectedExerciseBreakdown();
+  }
+
+  function enhanceMeasurementMetricOptions() {
+    const select = document.getElementById('measureMetric');
+    if (!select) return;
+    const extra = [
+      ['left_biceps', 'Left biceps (cm)'],
+      ['right_biceps', 'Right biceps (cm)'],
+      ['left_forearm', 'Left forearm (cm)'],
+      ['right_forearm', 'Right forearm (cm)'],
+      ['left_thigh', 'Left thigh (cm)'],
+      ['right_thigh', 'Right thigh (cm)'],
+      ['left_calf', 'Left calf (cm)'],
+      ['right_calf', 'Right calf (cm)'],
+      ['lean_mass', 'Lean mass (kg)'],
+      ['body_fat', 'Body fat (%)'],
+      ['abdomen', 'Abdomen (cm)']
+    ];
+    const existing = new Set([...select.options].map(option => option.value));
+    for (const [value, label] of extra) {
+      if (existing.has(value)) continue;
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      select.appendChild(option);
+    }
+  }
+
   function deltaText(current, previous) {
     const p = Number(previous || 0);
     if (!p) return 'No comparable prior data';
     const d = (Number(current || 0) - p) / p * 100;
     return (d >= 0 ? '+' : '') + num(d) + '%';
+  }
+
+  async function fetchReportStats(key) {
+    const [year, month] = String(key || '').split('-').map(Number);
+    if (!year || !month) return null;
+    const last = new Date(year, month, 0).getDate();
+    const start = key + '-01';
+    const end = key + '-' + String(last).padStart(2, '0');
+    const response = await fetch('/api/stats?days=90&start=' + start + '&end=' + end);
+    if (!response.ok) return null;
+    return response.json();
+  }
+
+  async function polishExactPrCount() {
+    const key = document.getElementById('reportMonth')?.value;
+    if (!key) return;
+    try {
+      const monthData = await fetchReportStats(key);
+      if (!monthData) return;
+      const card = [...document.querySelectorAll('#monthlyReport .reporthighlights .mini')]
+        .find(x => x.querySelector('small')?.textContent === 'PR events');
+      const strong = card?.querySelector('strong');
+      if (!strong) return;
+      if (Number.isFinite(Number(monthData.pr_count))) strong.textContent = num(monthData.pr_count);
+      else {
+        const visible = (monthData.prs || []).length;
+        strong.textContent = visible >= 30 ? visible + '+' : num(visible);
+      }
+    } catch (_) {
+      // Leave the already rendered value in place if the exact-count request fails.
+    }
   }
 
   async function polishCurrentMonthReport() {
@@ -152,19 +316,26 @@
   function applyPolish() {
     normalizeE1rmData();
     tidyAnalyticsLayout();
+    enhanceMeasurementMetricOptions();
+    installCorrectedChartRows();
+    rerenderOverviewCharts();
     polishMonthlyLabels();
     polishLoadRatio();
     renderGroupedPrTimeline();
     renderCorrectedRecords();
     if (typeof renderRecordExplorer === 'function') renderRecordExplorer();
-    if (typeof renderExerciseBreakdown === 'function') renderExerciseBreakdown();
+    installExerciseBreakdownFix();
     if (typeof progress === 'function' && document.getElementById('exercise')?.value) progress();
   }
+
+  installCorrectedChartRows();
+  enhanceMeasurementMetricOptions();
 
   const existingRenderMonthlyReport = typeof renderMonthlyReport === 'function' ? renderMonthlyReport : null;
   if (existingRenderMonthlyReport) {
     renderMonthlyReport = async function (...args) {
       const result = await existingRenderMonthlyReport.apply(this, args);
+      await polishExactPrCount();
       await polishCurrentMonthReport();
       return result;
     };
@@ -175,6 +346,7 @@
     load = async function (...args) {
       const result = await existingLoad.apply(this, args);
       applyPolish();
+      await polishExactPrCount();
       await polishCurrentMonthReport();
       return result;
     };
@@ -187,6 +359,7 @@
     if (typeof data !== 'undefined' && data) {
       clearInterval(initial);
       applyPolish();
+      await polishExactPrCount();
       await polishCurrentMonthReport();
     } else if (attempts > 30) clearInterval(initial);
   }, 200);
