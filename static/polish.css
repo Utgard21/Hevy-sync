@@ -1,0 +1,15 @@
+/* Final analytics layout polish. */
+#analytics .grid{align-items:start}
+#analytics .analytics-final-grid{grid-template-columns:1fr;gap:20px}
+#analytics .analytics-final-grid>article{margin-bottom:0}
+#analytics .analytics-final-grid #patterns{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#analytics .analytics-final-grid #recordExplorer{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+#analytics .analytics-final-grid #records .session{padding:11px 0}
+#analytics .analytics-final-grid .mini{min-height:88px}
+#prTimeline .pr-grouped{align-items:center}
+#prTimeline .pr-grouped p{max-width:920px;line-height:1.45}
+#prTimeline .pr-count{flex:0 0 auto;padding:5px 9px;border:1px solid #385178;border-radius:999px;background:#192845;color:#8ff0d1;font-size:11px;font-weight:700}
+#monthly .barcol small{font-size:10px;color:#9eacc1}
+@media(max-width:1050px){#analytics .analytics-final-grid #recordExplorer{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){#analytics .analytics-final-grid #patterns,#analytics .analytics-final-grid #recordExplorer{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#analytics .analytics-final-grid #patterns,#analytics .analytics-final-grid #recordExplorer{grid-template-columns:1fr}}
