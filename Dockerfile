@@ -2,8 +2,9 @@ FROM python:3.13-slim
 WORKDIR /app
 COPY app.py /app/
 COPY static /app/static
+COPY build_overlay.py /app/
 ENV DATA_DIR=/data TZ=Europe/Sofia PYTHONUNBUFFERED=1
-RUN mkdir /data && chown -R 99:100 /data /app
+RUN python /app/build_overlay.py && rm /app/build_overlay.py && mkdir /data && chown -R 99:100 /data /app
 USER 99:100
 EXPOSE 8080
 VOLUME /data
