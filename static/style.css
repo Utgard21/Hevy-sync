@@ -689,3 +689,14 @@ body.initial-loading #cards:empty::before,body.initial-loading #cards:empty::aft
  #analytics #dataConfidence>.mini p{font-size:11px}
  #musclesTab .musclelabel span{font-size:11px}
 }
+
+/* Monthly calendar routine frequency */
+.calroutine-summary{margin-top:18px;padding-top:16px;border-top:1px solid var(--line,#33465d)}
+.calroutine-summary h3{margin:0 0 6px;font-size:1rem}
+.calroutine-description{margin:0 0 12px;color:var(--muted,#aab9ce);font-size:.85rem}
+.calroutine-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.calroutine-count{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:11px 13px;border:1px solid #354b65;border-radius:10px;background:rgba(22,38,58,.65)}
+.calroutine-name{display:flex;align-items:center;gap:9px;min-width:0;overflow-wrap:anywhere}
+.calroutine-name .routinedot{flex:none;width:11px;height:11px;border-radius:4px}
+.calroutine-count strong{white-space:nowrap;color:#a8d0ff;font-size:.9rem}
+@media(max-width:600px){.calroutine-list{grid-template-columns:1fr}.calroutine-count{padding:12px}}
